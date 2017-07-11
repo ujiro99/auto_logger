@@ -1,6 +1,8 @@
 # auto_logger
 
-## install non-internet machin
+## installation
+
+how to install non-internet machine.
 ```
 pip freeze > requirements.txt
 pip wheel -r requirements.txt -w lib
