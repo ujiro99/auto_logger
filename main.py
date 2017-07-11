@@ -14,8 +14,7 @@ def start(address: str, test_number: str) -> object:
 
     \b
     試験番号毎のディレクトリを作成し、その中にログを保存します。
-    ログ取得を終了する場合は、 exit を入力し
-    てください。
+    ログ取得を終了する場合は、 exit を入力してください。
     """
 
     # check parameters.
