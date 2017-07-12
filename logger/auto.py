@@ -2,16 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import os
-import subprocess
+import pexpect
 import time
 from . import remote
 
 
 class AutoLogger:
 
-    time_fmt = "%Y-%m-%d_%H%M%S"
-    log_name = "console.log"
-    devnull = open('/dev/null', 'w')
+    TIME_FMT = "%Y-%m-%d_%H%M%S"
+    CONSOLE_LOG_NAME = "console.log"
+    END_LINE = "\r\n"
+    PROMPT = "[#$%>]"
+    SHELL = "ssh"
+    TIMEOUT_EXPECT = 10
 
     def __init__(self, address, test_number):
         """
@@ -28,7 +31,7 @@ class AutoLogger:
         :rtype: str
         """
         t = time.localtime()
-        return time.strftime(AutoLogger.time_fmt, t)
+        return time.strftime(AutoLogger.TIME_FMT, t)
 
     def create_dir(self):
         """
@@ -46,9 +49,26 @@ class AutoLogger:
         Start logging.
         """
         self.local_log_dir = self.create_dir()
-        path = os.path.join(self.local_log_dir, AutoLogger.log_name)
-        subprocess.call(["script", path])
-        return self.finish()
+        path = os.path.join(self.local_log_dir, AutoLogger.CONSOLE_LOG_NAME)
+
+        # 操作記録のため、script コマンドを開始
+        p = pexpect.spawn("%s %s" % ("script", path))
+        p.timeout = AutoLogger.TIMEOUT_EXPECT
+
+        # ユーザ操作前に自動実行したい処理があればここにいれる
+        # ex)
+        #   p.expect(AutoLogger.PROMPT)             # 入力待ちを検知する
+        #   p.send("%s\n" % "${実行したいコマンド}")   # コマンドを実行する
+
+        # shell に接続
+        p.expect(AutoLogger.END_LINE)
+        p.send("%s %s\n" % (AutoLogger.SHELL, self.host_name))
+
+        # ユーザ操作開始
+        p.interact()
+        # 終了
+        p.terminate()
+        p.expect(pexpect.EOF)
 
     def finish(self):
         """
@@ -56,7 +76,7 @@ class AutoLogger:
         """
         params = remote.RemoteLoggerParam()
         params.host_name = self.host_name
-        params.shell = ""
+        params.shell = AutoLogger.SHELL
         params.log_cmd = ""
         params.remote_log_dir = ""
         params.remote_dist_dir = ""

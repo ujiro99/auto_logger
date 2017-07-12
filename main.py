@@ -14,7 +14,7 @@ def start(address: str, test_number: str) -> object:
 
     \b
     試験番号毎のディレクトリを作成し、その中にログを保存します。
-    ログ取得を終了する場合は、 exit を入力してください。
+    ログ取得を終了する場合は、 exit を2回入力してください。
     """
 
     # check parameters.
@@ -23,13 +23,14 @@ def start(address: str, test_number: str) -> object:
     if test_number is None:
         return click.echo("Error: test_numberを設定してください。")
 
-    click.echo("ログ取得を開始します。終了するには exit と入力してください。")
+    click.echo("ログ取得を開始します。終了するには exit と2回入力してください。")
 
     # execute command
     logger = auto.AutoLogger(address, test_number)
     ret = False
     try:
-        ret = logger.start()
+        logger.start()
+        ret = logger.finish()
     except IOError as e:
         click.echo(e.args)
     except Exception as e:

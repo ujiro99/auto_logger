@@ -23,7 +23,7 @@ class RemoteLogger:
 
     PROMPT = "[#$%>]"
     TIMEOUT_EXPECT = 10
-    TIMEOUT_MOVE = 20
+    TIMEOUT_MOVE = 30
 
     def __init__(self, params):
         """
@@ -56,7 +56,7 @@ class RemoteLogger:
         print("- created: %s" % self.filename)
 
         # mv log file to local machine
-        print("- mv log file")
+        print("- move log file")
         p.expect(RemoteLogger.PROMPT)
         p.send("mv %s %s\n" % (self.filename, self.params.remote_dist_dir))
 
