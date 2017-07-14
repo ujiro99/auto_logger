@@ -6,5 +6,5 @@ setup(
     author='Yujiro Takeda',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['click'],
+    install_requires=['click', 'pexpect'],
 )
