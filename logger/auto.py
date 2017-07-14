@@ -69,6 +69,7 @@ class AutoLogger:
         # 終了
         p.terminate()
         p.expect(pexpect.EOF)
+        return True
 
     def finish(self):
         """
