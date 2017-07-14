@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import click
-from logger import auto
+from . import auto
 
 
 @click.command()
