@@ -24,9 +24,9 @@ class TestCli(TestCase):
         runner = CliRunner()
         result = runner.invoke(start)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.output, 'Error: test_numberを設定してください。\n')
+        self.assertEqual(result.output, 'Error: test-number を設定してください。\n')
 
     def test_main(self):
-        with patch('logger.cli.start'):
+        with patch('logger.cli.cmd'):
             main()
 

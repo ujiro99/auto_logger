@@ -3,13 +3,15 @@ import pexpect
 import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+
+import logger.params
 from logger import auto, remote
 
 
 class TestAutoLogger(TestCase):
 
     test_number = "1-1-1"
-    p = auto.LogParam()
+    p = logger.params.LogParam()
     p.host_name = "192.168.1.2"
     p.shell = "ssh"
     p.log_cmd = ""

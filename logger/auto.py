@@ -2,21 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pexpect
 import time
-from . import remote
+import pexpect
 
-
-class LogParam:
-
-    def __init__(self):
-        self.host_name = None        # type: str
-        self.shell = None            # type: str
-        self.log_cmd = None          # type: str
-        self.remote_log_dir = None   # type: str
-        self.remote_dist_dir = None  # type: str
-        self.local_src_dir = None    # type: str
-        self.local_dist_dir = None   # type: str
+from logger import remote
 
 
 class AutoLogger:
@@ -30,7 +19,7 @@ class AutoLogger:
     def __init__(self, params, test_number):
         """
          Constructor.
-        :param LogParam params: Parameters to decide behaviors of command.
+        :param logger.params.LogParam params: Parameters to decide behaviors of command.
         :param str test_number: Test case number.
         """
         self.params = params
@@ -81,6 +70,11 @@ class AutoLogger:
         return True
 
     def execute(self):
+        """
+        Executes all logging process.
+        :return: Result of getting remote log. True: success | False: fail
+        :rtype: bool
+        """
         # create log directory
         self.params.local_dist_dir = self.create_dir()
 

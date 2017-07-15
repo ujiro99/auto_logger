@@ -5,7 +5,6 @@ import os
 import shutil
 import time
 import pexpect
-from . import auto
 
 
 class RemoteLogger:
@@ -17,12 +16,15 @@ class RemoteLogger:
     def __init__(self, params):
         """
         constructor
-        :param logger.auto.LogParam params: execution parameter
+        :param logger.params.LogParam params: execution parameter
         """
-        self.params = params  # type: auto.LogParam
+        self.params = params  # type: import logger.params
         self.filename = None  # type: str
 
     def get_log(self):
+        """
+        Get remote log using shell command.
+        """
         # launch shell
         print("- launch shell")
         p = pexpect.spawn("%s %s" % (self.params.shell, self.params.host_name))
@@ -55,6 +57,11 @@ class RemoteLogger:
         p.expect(pexpect.EOF)
 
     def move_log(self):
+        """
+        Moves remote log to local directory.
+        :return: Result of logging. True: success | False: fail
+        :rtype: bool
+        """
         log_path = os.path.join(self.params.local_src_dir, self.filename)
 
         # check is file exists
