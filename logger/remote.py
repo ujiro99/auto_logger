@@ -26,14 +26,14 @@ class RemoteLogger:
         Get remote log using shell command.
         """
         # launch shell
-        print("- launch shell")
+        print("- launch %s@%s" % (self.params.shell, self.params.host_name))
         p = pexpect.spawn("%s %s" % (self.params.shell, self.params.host_name))
         p.timeout = RemoteLogger.TIMEOUT_EXPECT
 
         # execute log command
         p.expect(RemoteLogger.PROMPT)
         p.send("%s\n" % self.params.log_cmd)
-        print("- execute log command")
+        print("- execute %s" % self.params.log_cmd)
 
         # move to log directory
         p.expect(RemoteLogger.PROMPT)
