@@ -3,6 +3,8 @@ import shutil
 import pexpect
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+
+import logger.auto
 from logger import remote
 
 
@@ -10,12 +12,12 @@ class TestRemoteLogger(TestCase):
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
     def test_get_log(self):
-        params = remote.RemoteLoggerParam()
+        params = logger.auto.LogParam()
         remote_logger = remote.RemoteLogger(params)
         remote_logger.get_log()
 
     def test_move_log(self):
-        p = remote.RemoteLoggerParam()
+        p = logger.auto.LogParam()
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
 
@@ -36,7 +38,7 @@ class TestRemoteLogger(TestCase):
         shutil.rmtree(p.local_dist_dir)
 
     def test_move_log_timeout(self):
-        p = remote.RemoteLoggerParam()
+        p = logger.auto.LogParam()
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
         remote.RemoteLogger.TIMEOUT_MOVE = 1

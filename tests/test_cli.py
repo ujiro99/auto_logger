@@ -6,7 +6,7 @@ from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
 
-class TestMain(TestCase):
+class TestCli(TestCase):
 
     @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
     def test_start(self):

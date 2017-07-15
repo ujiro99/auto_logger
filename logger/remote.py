@@ -2,21 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pexpect
 import shutil
 import time
-
-
-class RemoteLoggerParam:
-
-    def __init__(self):
-        self.host_name = None        # type: str
-        self.shell = None            # type: str
-        self.log_cmd = None          # type: str
-        self.remote_log_dir = None   # type: str
-        self.remote_dist_dir = None  # type: str
-        self.local_src_dir = None    # type: str
-        self.local_dist_dir = None   # type: str
+import pexpect
+from . import auto
 
 
 class RemoteLogger:
@@ -28,9 +17,9 @@ class RemoteLogger:
     def __init__(self, params):
         """
         constructor
-        :param RemoteLoggerParam params: execution parameter
+        :param logger.auto.LogParam params: execution parameter
         """
-        self.params = params  # type: RemoteLoggerParam
+        self.params = params  # type: auto.LogParam
         self.filename = None  # type: str
 
     def get_log(self):

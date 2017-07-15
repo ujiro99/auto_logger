@@ -7,24 +7,34 @@ import time
 from . import remote
 
 
+class LogParam:
+
+    def __init__(self):
+        self.host_name = None        # type: str
+        self.shell = None            # type: str
+        self.log_cmd = None          # type: str
+        self.remote_log_dir = None   # type: str
+        self.remote_dist_dir = None  # type: str
+        self.local_src_dir = None    # type: str
+        self.local_dist_dir = None   # type: str
+
+
 class AutoLogger:
 
     TIME_FMT = "%Y-%m-%d_%H%M%S"
     CONSOLE_LOG_NAME = "console.log"
     END_LINE = "\r\n"
     PROMPT = "[#$%>]"
-    SHELL = "ssh"
     TIMEOUT_EXPECT = 10
 
-    def __init__(self, address, test_number):
+    def __init__(self, params, test_number):
         """
          Constructor.
-        :param str address: telnet address
-        :param str test_number: test case number
+        :param LogParam params: Parameters to decide behaviors of command.
+        :param str test_number: Test case number.
         """
-        self.host_name = address
+        self.params = params
         self.test_number = test_number
-        self.local_log_dir = ""  # type: str
 
     def generate_date_str(self):
         """
@@ -44,12 +54,11 @@ class AutoLogger:
             raise IOError
         return path
 
-    def start(self):
+    def start_script_cmd(self):
         """
         Start logging.
         """
-        self.local_log_dir = self.create_dir()
-        path = os.path.join(self.local_log_dir, AutoLogger.CONSOLE_LOG_NAME)
+        path = os.path.join(self.params.local_dist_dir, AutoLogger.CONSOLE_LOG_NAME)
 
         # 操作記録のため、script コマンドを開始
         p = pexpect.spawn("%s %s" % ("script", path))
@@ -62,7 +71,7 @@ class AutoLogger:
 
         # shell に接続
         p.expect(AutoLogger.END_LINE)
-        p.send("%s %s\n" % (AutoLogger.SHELL, self.host_name))
+        p.send("%s %s\n" % (self.params.shell, self.params.host_name))
 
         # ユーザ操作開始
         p.interact()
@@ -71,19 +80,15 @@ class AutoLogger:
         p.expect(pexpect.EOF)
         return True
 
-    def finish(self):
-        """
-        Copy logs to test case directory from remote.
-        """
-        params = remote.RemoteLoggerParam()
-        params.host_name = self.host_name
-        params.shell = AutoLogger.SHELL
-        params.log_cmd = ""
-        params.remote_log_dir = ""
-        params.remote_dist_dir = ""
-        params.local_src_dir = ""
-        params.local_dist_dir = self.local_log_dir
+    def execute(self):
+        # create log directory
+        self.params.local_dist_dir = self.create_dir()
 
-        remote_logger = remote.RemoteLogger(params)
+        # get console log
+        self.start_script_cmd()
+
+        # get remote log
+        remote_logger = remote.RemoteLogger(self.params)
         remote_logger.get_log()
         return remote_logger.move_log()
+

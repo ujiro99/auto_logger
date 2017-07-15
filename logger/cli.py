@@ -6,9 +6,8 @@ from . import auto
 
 
 @click.command()
-@click.option('-a', '--address', type=str, help='実機のtelnet接続用のIPアドレス')
 @click.option('-t', '--test_number', type=str, help='試験番号.ログを保存するディレクトリ名に使用されます。')
-def start(address: str, test_number: str) -> object:
+def start(test_number: str) -> object:
     """
     ログ取得を開始します。
 
@@ -18,19 +17,25 @@ def start(address: str, test_number: str) -> object:
     """
 
     # check parameters.
-    if address is None:
-        return click.echo("Error: addressを設定してください。")
     if test_number is None:
         return click.echo("Error: test_numberを設定してください。")
 
     click.echo("ログ取得を開始します。終了するには exit と2回入力してください。")
 
+    p = auto.LogParam()
+    p.host_name = ""
+    p.shell = "ssh"
+    p.log_cmd = ""
+    p.remote_log_dir = ""
+    p.remote_dist_dir = ""
+    p.local_src_dir = ""
+    p.local_dist_dir = ""
+
     # execute command
-    logger = auto.AutoLogger(address, test_number)
+    logger = auto.AutoLogger(p, test_number)
     ret = False
     try:
-        logger.start()
-        ret = logger.finish()
+        ret = logger.execute()
     except IOError as e:
         click.echo(e.args)
     except Exception as e:
