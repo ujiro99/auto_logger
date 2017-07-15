@@ -2,9 +2,16 @@
 
 ## installation
 
-how to install non-internet machine.
+### how to install non-internet machine.
+
+Download all dependent packages locally.
+```sh
+$ pip freeze > requirements.txt
+$ pip wheel -r requirements.txt -w lib
 ```
-pip freeze > requirements.txt
-pip wheel -r requirements.txt -w lib
-pip install -r requirements.txt -f lib --no-index
+
+Move all files to non-internet machine, then execute commands below.
+```sh
+$ pip install -r requirements.txt -f lib --no-index
+$ pip install -e .
 ```
