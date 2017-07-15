@@ -36,11 +36,12 @@ class TestCli(TestCase):
     @patch.object(click, 'prompt', MagicMock(return_value=""))
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
+    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
     def test_start__init(self):
         runner = CliRunner()
         result = runner.invoke(start, ['-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.output, '設定保存完了: setting_file\n')
+        self.assertRegex(result.output, '設定保存完了: setting_file.*')
 
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     def test_init(self):

@@ -46,8 +46,9 @@ def start(ctx: click.core.Context, test_number: str) -> object:
     p = params.LogParam()
     ret = p.read_ini()
     if not ret:
+        click.echo('ログ取得に使用するパラメータを設定してください。')
         ctx.invoke(init)
-        return
+        p.read_ini()
 
     # execute command
     click.echo("ログ取得を開始します。終了するには exit を2回入力してください。")
