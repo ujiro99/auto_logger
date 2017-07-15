@@ -5,6 +5,7 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
-  coverage run --source=logger setup.py test
+  - cp tests/plog.ini ./
+  - coverage run --source=logger setup.py test
 after_success:
   coveralls
