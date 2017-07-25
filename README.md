@@ -13,5 +13,5 @@ $ pip wheel -r requirements.txt -w lib
 Move all files to non-internet machine, then execute commands below.
 ```sh
 $ pip install -r requirements.txt -f lib --no-index
-$ pip install -e .
+$ pip install -e . -f lib --no-index
 ```
