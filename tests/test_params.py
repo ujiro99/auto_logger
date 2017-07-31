@@ -69,6 +69,7 @@ class TestLogParam(TestCase):
         p.remote_log_dir = "remote_log_dir"
         p.remote_dist_dir = "remote_dist_dir"
         p.local_src_dir = "local_src_dir"
+        p.log_extension = "tar"
         path = p.write_ini()
         self.assertEqual(path, os.path.join(os.environ['HOME'], LogParam.FILE_NAME))
 

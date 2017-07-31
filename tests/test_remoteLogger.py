@@ -6,19 +6,22 @@ from unittest.mock import MagicMock, patch
 
 import logger.auto
 import logger.params
-from logger import remote
-
+from logger import remote, watch
 
 class TestRemoteLogger(TestCase):
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
-    def test_get_log(self):
+    def test_get_log_timeout(self):
         params = logger.params.LogParam()
         remote_logger = remote.RemoteLogger(params)
-        remote_logger.get_log()
+        remote_logger.TIMEOUT_LOGGING = 1
+        ret = remote_logger.get_log()
+        self.assertFalse(ret)
 
+    @patch.object(watch, 'file', MagicMock(return_value="testdata"))
     def test_move_log(self):
         p = logger.params.LogParam()
+        p.read_ini()
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
 
@@ -26,7 +29,8 @@ class TestRemoteLogger(TestCase):
         filename = "testdata"
         f = open(os.path.join(os.getcwd(), filename), "w")
         f.close()
-        os.mkdir(p.local_dist_dir)
+        if not os.path.exists(p.local_dist_dir):
+            os.mkdir(p.local_dist_dir)
 
         # exec
         remote_logger = remote.RemoteLogger(p)
@@ -40,6 +44,7 @@ class TestRemoteLogger(TestCase):
 
     def test_move_log_timeout(self):
         p = logger.params.LogParam()
+        p.read_ini()
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
         remote.RemoteLogger.TIMEOUT_MOVE = 1

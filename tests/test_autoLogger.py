@@ -40,7 +40,7 @@ class TestAutoLogger(TestCase):
         self.assertFalse(is_exists)
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
-    def test_start_script_cmd(self):
+    def _start_script_cmd(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
         ret = a.start_script_cmd()
         self.assertTrue(ret)

@@ -15,6 +15,7 @@ class LogParam:
         self.host_name       = None  # type: str
         self.shell           = None  # type: str
         self.log_cmd         = None  # type: str
+        self.log_extension   = None  # type: str
         self.remote_log_dir  = None  # type: str
         self.remote_dist_dir = None  # type: str
         self.local_src_dir   = None  # type: str
@@ -41,6 +42,7 @@ class LogParam:
         self.host_name       = f['host_name']
         self.shell           = f['shell']
         self.log_cmd         = f['log_cmd']
+        self.log_extension   = f['log_extension']
         self.remote_log_dir  = f['remote_log_dir']
         self.remote_dist_dir = f['remote_dist_dir']
         self.local_src_dir   = f['local_src_dir']
@@ -60,6 +62,7 @@ class LogParam:
             'host_name': self.host_name,
             'shell': self.shell,
             'log_cmd': self.log_cmd,
+            'log_extension': self.log_extension,
             'remote_log_dir': self.remote_log_dir,
             'remote_dist_dir': self.remote_dist_dir,
             'local_src_dir': self.local_src_dir,

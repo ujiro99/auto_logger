@@ -1,6 +1,9 @@
+import os
+import shutil
 import click
 from logger import auto, cli, params
 from logger.cli import cmd, start, main, init
+from logger.params import LogParam
 
 from unittest import TestCase
 from click.testing import CliRunner
@@ -8,6 +11,13 @@ from unittest.mock import MagicMock, patch
 
 
 class TestCli(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        file_in_tests = os.path.join(os.getcwd(), 'tests', LogParam.FILE_NAME)
+        file_current = os.path.join(os.getcwd(), LogParam.FILE_NAME)
+        if not os.path.exists(file_current):
+            shutil.copy(file_in_tests, file_current)
 
     @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
     def test_cmd(self):
