@@ -40,7 +40,7 @@ class RemoteLogger:
         p.send("cd %s\n" % self.params.remote_log_dir)
 
         # create sentinel file
-        sentinel = "__tmp__"
+        sentinel = "__tmp__.%s" % self.params.log_extension
         p.expect(RemoteLogger.PROMPT)
         p.send("%s %s\n" % ("touch", sentinel))
 
@@ -52,17 +52,19 @@ class RemoteLogger:
         # wait log to be created, and get log file name
         n = sentinel
         timeout = RemoteLogger.TIMEOUT_LOGGING
-        while n is sentinel and timeout > 0:
+        while (n == sentinel) and (timeout > 0):
             time.sleep(1)
-            timeout =- 1
+            timeout -= 1
             p.expect(RemoteLogger.PROMPT)
-            p.send("ls -t | head -1\n")
+            p.send("ls -t *.%s | head -1\n" % self.params.log_extension)
             p.expect("-1\s+(\S+)\s")
             n = p.match.groups()[0].decode("utf-8")
-        if timeout < 0:
+
+        if timeout <= 0:
+            print("- time out to logging.")
             return False # Failed to logging
 
-        p.send("rm %s\n", sentinel)
+        p.send("rm %s\n" % sentinel)
         self.filename = n
         print("- created: %s" % self.filename)
 
@@ -89,7 +91,7 @@ class RemoteLogger:
                           self.params.log_extension,
                           RemoteLogger.TIMEOUT_MOVE)
 
-        if not self.filename is name:
+        if not self.filename == name:
             return False
 
         log_path = os.path.join(self.params.local_src_dir, name)

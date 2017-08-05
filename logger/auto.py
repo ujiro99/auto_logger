@@ -62,7 +62,7 @@ class AutoLogger:
         p.expect(AutoLogger.END_LINE)
         p.send("%s %s\n" % (self.params.shell, self.params.host_name))
 
-        # ユーザ操作開始
+        # ここからユーザ操作開始
         p.interact()
         # 終了
         p.terminate()

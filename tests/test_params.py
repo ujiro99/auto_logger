@@ -13,6 +13,7 @@ class TestLogParam(TestCase):
     home_backup = os.path.join(home, buckup)
     current_file = os.path.join(current, LogParam.FILE_NAME)
     current_backup = os.path.join(current, buckup)
+    test_file = os.path.join(current, 'tests', LogParam.FILE_NAME)
 
     @classmethod
     def setUpClass(cls):
@@ -29,39 +30,27 @@ class TestLogParam(TestCase):
             shutil.move(cls.current_backup, cls.current_file)
 
     def test_read_ini__fail(self):
-        if os.path.exists(TestLogParam.home_file):
-            shutil.move(TestLogParam.home_file, TestLogParam.home_backup)
-        if os.path.exists(TestLogParam.current_file):
-            shutil.move(TestLogParam.current_file, TestLogParam.current_backup)
         p = LogParam()
         ret = p.read_ini()
         self.assertFalse(ret)
 
     def test_read_ini__current_directory(self):
-        if os.path.exists(TestLogParam.home_file):
-            shutil.move(TestLogParam.home_file, TestLogParam.home_backup)
-        if os.path.exists(TestLogParam.current_backup):
-            shutil.move(TestLogParam.current_backup, TestLogParam.current_file)
+        if os.path.exists(TestLogParam.test_file):
+            shutil.move(TestLogParam.test_file, TestLogParam.current_file)
         p = LogParam()
         ret = p.read_ini()
         self.assertTrue(ret)
+        shutil.move(TestLogParam.current_file, TestLogParam.test_file)
 
     def test_read_ini__home_directory(self):
-        if os.path.exists(TestLogParam.current_file):
-            shutil.move(TestLogParam.current_file, TestLogParam.current_backup)
-        if os.path.exists(TestLogParam.current_backup):
-            shutil.copy(TestLogParam.current_backup, TestLogParam.home_file)
+        if os.path.exists(TestLogParam.test_file):
+            shutil.move(TestLogParam.test_file, TestLogParam.home_file)
         p = LogParam()
         ret = p.read_ini()
         self.assertTrue(ret)
-        shutil.move(TestLogParam.home_file, TestLogParam.current_backup)
+        shutil.move(TestLogParam.home_file, TestLogParam.test_file)
 
     def test_write_ini(self):
-        if os.path.exists(TestLogParam.current_file):
-            shutil.move(TestLogParam.current_file, TestLogParam.current_backup)
-        if os.path.exists(TestLogParam.home_file):
-            shutil.move(TestLogParam.home_file, TestLogParam.home_backup)
-
         p = LogParam()
         p.host_name = "host_name"
         p.shell = "shell"
@@ -81,6 +70,7 @@ class TestLogParam(TestCase):
         self.assertEqual(p.remote_log_dir, p2.remote_log_dir)
         self.assertEqual(p.remote_dist_dir, p2.remote_dist_dir)
         self.assertEqual(p.local_src_dir, p2.local_src_dir)
+        self.assertEqual(p.log_extension, p2.log_extension)
 
         os.remove(path)
 

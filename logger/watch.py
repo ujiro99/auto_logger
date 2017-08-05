@@ -11,22 +11,28 @@ class ChangeHandler(PatternMatchingEventHandler):
     def __init__(self, patterns: list):
         super(ChangeHandler, self).__init__(patterns=patterns)
         self.file_name = None  # type: str
-        self.finished = False  # type: bool
+        self.modified = False  # type: bool
 
     def on_created(self, event: watchdog.events.FileCreatedEvent):
-        print("  on_created %s" % event.src_path)
+        #print("  on_created %s" % event.src_path)
         if event.is_directory:
             return
         self.file_name = event.src_path
-        # self.finished = True
+        self.modified = True
 
     def on_modified(self, event: watchdog.events.FileModifiedEvent):
-        print("  on_modified %s" % event.src_path)
+        #print("  on_modified %s" % event.src_path)
         if event.is_directory:
             return
         self.file_name = event.src_path
-        # self.finished = True
+        self.modified = True
 
+    def on_moved(self, event: watchdog.events.FileMovedEvent):
+        #print("  on_moved %s" % event.src_path)
+        if event.is_directory:
+            return
+        self.file_name = event.src_path
+        self.modified = True
 
 def file(path, extension, timeout):
     """
@@ -37,26 +43,31 @@ def file(path, extension, timeout):
     :return: Created file name.
     :rtype str
     """
-
     handler = ChangeHandler(["*." + extension])
     observer = Observer()
     observer.schedule(handler, path, recursive=False)
     observer.start()
 
     try:
-        while True:
+
+        UPDATE_INTERVAL = 0.5
+        interval = UPDATE_INTERVAL
+        while interval >= 0 and timeout > 0:
             time.sleep(0.1)
             timeout -= 0.1
-            if handler.finished is True:
-                observer.stop()
-                break
-            elif timeout <= 0:
-                observer.stop()
-                print("- timeout")
-                break
+            interval -= 0.1
+            if handler.modified is True:
+                print('- now writing... %s ' % handler.file_name)
+                handler.modified = False
+                interval = UPDATE_INTERVAL
+
     except KeyboardInterrupt:
         observer.stop()
 
-    observer.join()
+    if timeout <= 0:
+        print("- time out")
+
+    observer.stop()
+    observer.join(timeout)
 
     return handler.file_name

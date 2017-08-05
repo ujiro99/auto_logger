@@ -19,6 +19,11 @@ class TestCli(TestCase):
         if not os.path.exists(file_current):
             shutil.copy(file_in_tests, file_current)
 
+    @classmethod
+    def tearDownClass(cls):
+        file_current = os.path.join(os.getcwd(), LogParam.FILE_NAME)
+        os.remove(file_current)
+
     @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
     def test_cmd(self):
         runner = CliRunner()
