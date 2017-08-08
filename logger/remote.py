@@ -87,14 +87,14 @@ class RemoteLogger:
         :return Result fo move. success: True, failed: False.
         :rtype bool
         """
-        name = watch.file(self.params.local_src_dir,
-                          self.params.log_extension,
+        is_created= watch.file(self.params.local_src_dir,
+                          self.filename,
                           RemoteLogger.TIMEOUT_MOVE)
 
-        if not self.filename == name:
+        if not is_created:
             return False
 
-        log_path = os.path.join(self.params.local_src_dir, name)
+        log_path = os.path.join(self.params.local_src_dir, self.filename)
         shutil.move(log_path, self.params.local_dist_dir)
         print("- moved: %s" % self.params.local_dist_dir)
 

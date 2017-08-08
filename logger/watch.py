@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import time
 import watchdog
 from watchdog.events import PatternMatchingEventHandler
@@ -34,18 +35,18 @@ class ChangeHandler(PatternMatchingEventHandler):
         self.file_name = event.src_path
         self.modified = True
 
-def file(path, extension, timeout):
+def file(dirname, filename, timeout):
     """
     Wait until a file created.
-    :param str path: Directory path to be watched.
-    :param str extension: File extension to be watched.
+    :param str dirname: Directory path to be watched.
+    :param str filename: File name to be watched.
     :param num timeout: How many seconds to be wait. [sec]
-    :return: Created file name.
-    :rtype str
+    :return: Is created the file.
+    :rtype bool
     """
-    handler = ChangeHandler(["*." + extension])
+    handler = ChangeHandler([filename])
     observer = Observer()
-    observer.schedule(handler, path, recursive=False)
+    observer.schedule(handler, dirname, recursive=False)
     observer.start()
 
     try:
@@ -64,10 +65,13 @@ def file(path, extension, timeout):
     except KeyboardInterrupt:
         observer.stop()
 
-    if timeout <= 0:
+    is_exists = os.path.exists(os.path.join(dirname, filename))
+
+    if timeout <= 0 and not is_exists:
         print("- time out")
+        return False
 
     observer.stop()
     observer.join(timeout)
 
-    return handler.file_name
+    return True
