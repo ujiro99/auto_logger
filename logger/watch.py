@@ -3,37 +3,31 @@
 
 import os
 import time
+
 import watchdog
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
 
 class ChangeHandler(PatternMatchingEventHandler):
-    def __init__(self, patterns: list):
-        super(ChangeHandler, self).__init__(patterns=patterns)
-        self.file_name = None  # type: str
+    def __init__(self, dir: str, filename: list):
+        ext = os.path.splitext(filename)[1]
+        super(ChangeHandler, self).__init__(patterns=["*%s" % ext])
+        self.file_path = os.path.join(dir, filename)  # type: str
         self.modified = False  # type: bool
 
     def on_created(self, event: watchdog.events.FileCreatedEvent):
-        #print("  on_created %s" % event.src_path)
-        if event.is_directory:
+        print("  on_created %s" % event.src_path)
+        if event.src_path != self.file_path:
             return
-        self.file_name = event.src_path
         self.modified = True
 
     def on_modified(self, event: watchdog.events.FileModifiedEvent):
-        #print("  on_modified %s" % event.src_path)
-        if event.is_directory:
+        print("  on_modified %s" % event.src_path)
+        if event.src_path != self.file_path:
             return
-        self.file_name = event.src_path
         self.modified = True
 
-    def on_moved(self, event: watchdog.events.FileMovedEvent):
-        #print("  on_moved %s" % event.src_path)
-        if event.is_directory:
-            return
-        self.file_name = event.src_path
-        self.modified = True
 
 def file(dirname, filename, timeout):
     """
@@ -44,13 +38,12 @@ def file(dirname, filename, timeout):
     :return: Is created the file.
     :rtype bool
     """
-    handler = ChangeHandler([filename])
+    handler = ChangeHandler(dirname, filename)
     observer = Observer()
     observer.schedule(handler, dirname, recursive=False)
     observer.start()
 
     try:
-
         UPDATE_INTERVAL = 0.5
         interval = UPDATE_INTERVAL
         while interval >= 0 and timeout > 0:
@@ -58,7 +51,7 @@ def file(dirname, filename, timeout):
             timeout -= 0.1
             interval -= 0.1
             if handler.modified is True:
-                print('- now writing... %s ' % handler.file_name)
+                print('- now writing... %s ' % filename)
                 handler.modified = False
                 interval = UPDATE_INTERVAL
 

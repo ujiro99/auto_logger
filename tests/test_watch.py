@@ -38,19 +38,18 @@ class TestFile(TestCase):
         wd = os.getcwd()
 
         path = wd
-        extension = 'tar.gz'
-        filename = wd + '/test.%s' % extension
+        filename = 'test.tar.gz'
         timeout = 10
-        w = WriteThread(filename, 10, 0.1)
+        w = WriteThread(os.path.join(wd, filename), 10, 0.1)
         w.start()
-        f = watch.file(path, extension, timeout)
+        is_created = watch.file(path, filename, timeout)
         w.stop()
         w.join()
-        self.assertEqual(filename, f)
+        self.assertTrue(is_created)
 
     def test_file__timeout(self):
         path = "./"
-        extension = ".tar.gz"
+        filename = "test.tar.gz"
         timeout = 0.1
-        filename = watch.file(path, extension, timeout)
-        self.assertIsNone(filename)
+        is_created = watch.file(path, filename, timeout)
+        self.assertFalse(is_created)

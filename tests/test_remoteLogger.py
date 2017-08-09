@@ -29,7 +29,7 @@ class TestRemoteLogger(TestCase):
         ret = remote_logger.get_log()
         self.assertFalse(ret)
 
-    @patch.object(watch, 'file', MagicMock(return_value="testdata"))
+    @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):
         p = logger.params.LogParam()
         p.read_ini()
@@ -53,16 +53,18 @@ class TestRemoteLogger(TestCase):
         self.assertTrue(is_exists)
         shutil.rmtree(p.local_dist_dir)
 
+    @patch.object(watch, 'file', MagicMock(return_value=False))
     def test_move_log__timeout(self):
         p = logger.params.LogParam()
         p.read_ini()
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
-        p.log_extension = "tar.gz"
         remote.RemoteLogger.TIMEOUT_MOVE = 1
+
         remote_logger = remote.RemoteLogger(p)
         remote_logger.filename = "testdata"
         ret = remote_logger.move_log()
+
         self.assertFalse(ret)
         is_exists = os.path.exists(os.path.join(p.local_dist_dir, remote_logger.filename))
         self.assertFalse(is_exists)
