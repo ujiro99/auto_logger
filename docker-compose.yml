@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  sshd:
+    image: ujiro99/sshd:logger
+    container_name: sshd
+    ports:
+      - "2222:22"
+
+  python:
+    image: ujiro99/python:logger
+    container_name: python
