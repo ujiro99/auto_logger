@@ -37,16 +37,16 @@ class RemoteLogger:
 
         # move to log directory
         p.expect(RemoteLogger.PROMPT)
-        p.send("cd %s\n" % self.params.remote_log_dir)
+        p.sendline("cd %s" % self.params.remote_log_dir)
 
         # create sentinel file
         sentinel = "__tmp__.%s" % self.params.log_extension
         p.expect(RemoteLogger.PROMPT)
-        p.send("%s %s\n" % ("touch", sentinel))
+        p.sendline("%s %s" % ("touch", sentinel))
 
         # execute log command
         p.expect(RemoteLogger.PROMPT)
-        p.send("%s\n" % self.params.log_cmd)
+        p.sendline("%s" % self.params.log_cmd)
         print("- execute %s" % self.params.log_cmd)
 
         # wait log to be created, and get log file name
@@ -56,7 +56,7 @@ class RemoteLogger:
             time.sleep(1)
             timeout -= 1
             p.expect(RemoteLogger.PROMPT)
-            p.send("ls -t *.%s | head -1\n" % self.params.log_extension)
+            p.sendline("ls -t *.%s | head -1" % self.params.log_extension)
             p.expect("-1\s+(\S+)\s")
             n = p.match.groups()[0].decode("utf-8")
 
@@ -64,14 +64,14 @@ class RemoteLogger:
             print("- time out to logging.")
             return False # Failed to logging
 
-        p.send("rm %s\n" % sentinel)
+        p.sendline("rm %s" % sentinel)
         self.filename = n
         print("- created: %s" % self.filename)
 
         # mv log file to local machine
         print("- move log file: %s" % self.params.remote_dist_dir)
         p.expect(RemoteLogger.PROMPT)
-        p.send("mv %s %s\n" % (self.filename, self.params.remote_dist_dir))
+        p.sendline("mv %s %s" % (self.filename, self.params.remote_dist_dir))
 
         # terminate
         p.expect(RemoteLogger.PROMPT)

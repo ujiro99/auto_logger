@@ -56,11 +56,11 @@ class AutoLogger:
         # ユーザ操作前に自動実行したい処理があればここにいれる
         # ex)
         #   p.expect(AutoLogger.PROMPT)             # 入力待ちを検知する
-        #   p.send("%s\n" % "${実行したいコマンド}")   # コマンドを実行する
+        #   p.sendline("%s" % "${実行したいコマンド}")   # コマンドを実行する
 
         # shell に接続
         p.expect(AutoLogger.END_LINE)
-        p.send("%s %s\n" % (self.params.shell, self.params.host_name))
+        p.sendline("%s %s" % (self.params.shell, self.params.host_name))
 
         # ここからユーザ操作開始
         p.interact()

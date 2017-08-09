@@ -18,7 +18,7 @@ class TestRemoteLogger(TestCase):
 
         p = pexpect.spawn()
         p.expect = MagicMock()
-        p.send = MagicMock()
+        p.sendline = MagicMock()
         p.match = MagicMock()
         p.terminate = MagicMock()
         array = [MagicMock()]
