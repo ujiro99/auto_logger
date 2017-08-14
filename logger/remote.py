@@ -101,7 +101,7 @@ class RemoteLogger:
         log.d("  > " + cmd)
         self.p.sendline(cmd)
         self.p.expect(RemoteLogger.PROMPT)
-        log.d(self.p.before.decode("utf-8"))
+        log.d(self.p.before)
 
     def __get_file_set(self):
         """
