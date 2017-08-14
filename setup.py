@@ -11,5 +11,6 @@ setup(
         "console_scripts": [
             "mlog=logger.cli:main",
         ],
-    }
+    },
+    test_suite = 'tests'
 )
