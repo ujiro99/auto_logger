@@ -98,7 +98,7 @@ class TestCli(TestCase):
             'log_extension':   'tar.gz',
             'remote_log_dir':  '/root',
             'remote_dist_dir': '/mnt/src',
-            'local_src_dir':   '/mnt/src',
+            'local_src_dir':   '/home/docker/src',
         }
         file_path = os.path.join(os.getcwd(), '.tmp', LogParam.FILE_NAME)
         with open(file_path, 'w') as file:
