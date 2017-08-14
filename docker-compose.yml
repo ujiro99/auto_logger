@@ -6,7 +6,28 @@ services:
     container_name: sshd
     ports:
       - "2222:22"
+    volumes:
+      - /home/docker/src:/mnt/src
+    networks:
+      logger_net:
+        ipv4_address: 172.30.10.2
 
   python:
     image: ujiro99/python:logger
     container_name: python
+    tty: true
+    volumes:
+      - /home/docker/src:/mnt/src
+    command: "/bin/sh"
+    networks:
+      logger_net:
+        ipv4_address: 172.30.10.3
+
+networks:
+  logger_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.10.0/24
+          gateway: 172.30.10.1

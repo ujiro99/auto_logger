@@ -31,7 +31,7 @@ def cmd(ctx: click.core.Context, test_number: str):
 @click.option('-t', '--test-number', type=str, help='試験番号。ログを保存するディレクトリ名に使用されます。')
 def start(ctx: click.core.Context, test_number: str) -> object:
     """
-    ログ取得を開始します。
+    コンソール操作ログを含む、ログの取得を開始します。
 
     \b
     試験番号毎のディレクトリを作成し、その中にログを保存します。
@@ -55,7 +55,37 @@ def start(ctx: click.core.Context, test_number: str) -> object:
     logger = auto.AutoLogger(p, test_number)
     ret = False
     try:
-        ret = logger.execute()
+        ret = logger.start()
+    except IOError as e:
+        click.echo(e.args)
+    except Exception as e:
+        click.echo(e.args)
+
+    # finished
+    if ret:
+        click.echo("正常に終了しました。")
+    else:
+        click.echo("失敗しました。")
+
+@cmd.command()
+@click.pass_context
+def get(ctx: click.core.Context) -> object:
+    """
+    ログを取得します。
+    """
+    # load other parameters from ini file
+    p = params.LogParam()
+    ret = p.read_ini()
+    if not ret:
+        click.echo('ログ取得に使用するパラメータを設定してください。')
+        ctx.invoke(init)
+        p.read_ini()
+
+    # execute command
+    logger = auto.AutoLogger(p)
+    ret = False
+    try:
+        ret = logger.get()
     except IOError as e:
         click.echo(e.args)
     except Exception as e:

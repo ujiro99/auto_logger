@@ -2,10 +2,10 @@ import logging
 from logging import getLogger, StreamHandler
 
 handler = StreamHandler()
-handler.setLevel(logging.INFO)
+handler.setLevel(logging.DEBUG)
 
 logger = getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
 

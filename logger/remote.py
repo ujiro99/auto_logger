@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 import shutil
 import time
 
@@ -36,9 +37,17 @@ class RemoteLogger:
         # launch shell
         log.i("- launch %s@%s" % (self.params.shell, self.params.host_name))
         self.p = p = pexpect.spawn("%s %s" % (self.params.shell, self.params.host_name))
-        # self.p = p = pexpect.spawn("bash")  # for develop
+        # self.p = p = pexpect.spawn("bash") # for develop
 
-        # prepare logging
+        log.d("- check is required to add known hosts.")
+        p.expect([r"yes", r"[#$%>]"])
+        log.d(p.before)
+        log.d(p.after)
+        if p.after == b'yes':
+            log.d("-- required.")
+            self.__send('yes')
+
+        log.d("- prepare logging")
         p.timeout = RemoteLogger.TIMEOUT_EXPECT
         self.__send("PS1='#'")
         self.__send("cd %s" % self.params.remote_log_dir)
@@ -89,10 +98,9 @@ class RemoteLogger:
             log.w("Error: cmd is None")
             return
 
-        log.d("  ++ " + cmd)
+        log.d("  > " + cmd)
         self.p.sendline(cmd)
         self.p.expect(RemoteLogger.PROMPT)
-        log.d("  -- ")
 
     def __get_file_set(self):
         """

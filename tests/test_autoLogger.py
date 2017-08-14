@@ -49,7 +49,7 @@ class TestAutoLogger(TestCase):
     @patch.object(remote, 'RemoteLogger', MagicMock())
     def test_execute(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
-        ret = a.execute()
+        ret = a.start()
         self.assertTrue(ret)
         shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
 
