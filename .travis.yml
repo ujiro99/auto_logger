@@ -1,3 +1,6 @@
+python:
+  - 3.5
+
 sudo: required
 
 services:
@@ -5,9 +8,6 @@ services:
 
 env:
   DOCKER_COMPOSE_VERSION: 1.14.0
-
-python:
-  - 3.5
 
 before_install:
   - docker-compose run -d sshd
