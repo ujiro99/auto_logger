@@ -7,7 +7,7 @@ services:
     ports:
       - "2222:22"
     volumes:
-      - /home/docker/src:/mnt/src
+      - .:/mnt/src
     networks:
       logger_net:
         ipv4_address: 172.30.10.2
@@ -17,7 +17,7 @@ services:
     container_name: python
     tty: true
     volumes:
-      - /home/docker/src:/mnt/src
+      - .:/mnt/src
     command: "/bin/sh"
     networks:
       logger_net:
