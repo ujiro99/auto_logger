@@ -41,8 +41,8 @@ class RemoteLogger:
 
         log.d("- check is required to add known hosts.")
         p.expect([r"yes", r"[#$%>]"])
-        log.d(p.before.decode("utf-8"))
-        log.d(p.after.decode("utf-8"))
+        log.d(p.before)
+        log.d(p.after)
         if p.after == b'yes':
             log.d("-- required.")
             self.__send('yes')
