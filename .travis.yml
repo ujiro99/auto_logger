@@ -13,6 +13,9 @@ env:
 
 before_install:
   - docker-compose run -d sshd
+  - docker network inspect autologger_logger_net
+  - docker inspect autologger_sshd_run_1
+  - ip addr
 
 install:
   - pip install -r requirements.txt
