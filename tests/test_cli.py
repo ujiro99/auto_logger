@@ -97,7 +97,7 @@ class TestCli(TestCase):
             'log_cmd':         'log_to_rom',
             'log_extension':   'tar.gz',
             'remote_log_dir':  '/root',
-            'remote_dist_dir': '/mnt/src',
+            'remote_dist_dir': '/mnt/log',
             'local_src_dir':   '../',
         }
         file_path = os.path.join(os.getcwd(), '.tmp', LogParam.FILE_NAME)
