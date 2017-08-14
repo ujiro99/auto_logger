@@ -92,7 +92,7 @@ class TestCli(TestCase):
 
         ini = configparser.ConfigParser()
         ini[LogParam.DEFAULT] = {
-            'host_name':       'root@172.30.10.2 -i ../sshd/.ssh/id_rsa',
+            'host_name':       'root@172.30.10.2',
             'shell':           'ssh',
             'log_cmd':         'log_to_rom',
             'log_extension':   'tar.gz',

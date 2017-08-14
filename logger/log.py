@@ -2,14 +2,12 @@ import logging
 from logging import getLogger, StreamHandler
 
 handler = StreamHandler()
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.INFO)
 
 logger = getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 logger.propagate = False
-
-logger.debug('hello')
 
 def d(msg):
     logger.debug(msg)
