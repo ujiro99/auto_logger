@@ -9,6 +9,7 @@ from logger import auto, params, log
 PROMPT_SHELL_CMD = "- remote shell command"
 PROMPT_HOST_NAME = "- remote host name"
 PROMPT_LOG_CMD = "- log command"
+PROMPT_LOG_EXTENSION = "- log extension"
 PROMPT_REMOTE_LOG_DIR = "- remote log dir"
 PROMPT_REMOTE_DIST_DIR = "- remote dist dir"
 PROMPT_LOCAL_SRC_DIR = "- local src dir"
@@ -111,10 +112,11 @@ def get(ctx: click.core.Context, debug: bool) -> object:
 @click.option('--shell-cmd',       prompt=PROMPT_SHELL_CMD, help='remote接続に使用するコマンド。ssh, telnet 等。')
 @click.option('--host-name',       prompt=PROMPT_HOST_NAME, help='接続先のアドレス')
 @click.option('--log-cmd',         prompt=PROMPT_LOG_CMD, help='remote接続先でのログ取得コマンド')
+@click.option('--log-extension',   prompt=PROMPT_LOG_EXTENSION, help='ログファイルの拡張子')
 @click.option('--remote-log-dir',  prompt=PROMPT_REMOTE_LOG_DIR, help='remote接続先でログが保存されるディレクトリ絶対パス')
 @click.option('--remote-dist-dir', prompt=PROMPT_REMOTE_DIST_DIR, help='remote接続先でログを一時保存するディレクトリ絶対パス')
 @click.option('--local-src-dir',   prompt=PROMPT_LOCAL_SRC_DIR, help='remoteからlocalへログを一時保存するディレクトリ絶対パス')
-def init(shell_cmd: str, host_name: str, log_cmd: str, remote_log_dir: str, remote_dist_dir: str, local_src_dir: str) -> object:
+def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remote_log_dir: str, remote_dist_dir: str, local_src_dir: str) -> object:
     """
     ログ取得に使用するパラメータを設定します。
     設定値は ~/plog.ini に保存されます。
@@ -127,6 +129,8 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, remote_log_dir: str, remo
         host_name = click.prompt(PROMPT_HOST_NAME, type=str)
     if log_cmd is None:
         log_cmd = click.prompt(PROMPT_LOG_CMD, type=str)
+    if log_extension is None:
+        log_extension = click.prompt(PROMPT_LOG_EXTENSION, type=str)
     if remote_log_dir is None:
         remote_log_dir = click.prompt(PROMPT_REMOTE_LOG_DIR, type=str)
     if remote_dist_dir is None:
@@ -142,6 +146,7 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, remote_log_dir: str, remo
     p.remote_log_dir  = remote_log_dir
     p.remote_dist_dir = remote_dist_dir
     p.local_src_dir   = local_src_dir
+    p.log_extension   = log_extension
 
     # Write to ~/prog.ini
     path = p.write_ini()

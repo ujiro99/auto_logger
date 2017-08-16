@@ -69,6 +69,7 @@ class TestCli(TestCase):
             '--shell-cmd', 'telnet',
             '--host-name', '192.168.11.2',
             '--log-cmd', 'log_to_rom',
+            '--log-extension', 'tar.gz',
             '--remote-log-dir', '/home/user/log',
             '--remote-dist-dir', '/home/user/log_dist',
             '--local-src-dir', '/home/user/log_src']
