@@ -2,7 +2,7 @@ version: '2'
 
 services:
   sshd:
-    image: ujiro99/sshd:logger
+    image: ujiro99/auto_logger_sshd:latest
     container_name: logger_sshd
     ports:
       - "2222:22"
