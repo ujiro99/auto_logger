@@ -3,21 +3,21 @@ version: '2'
 services:
   sshd:
     image: ujiro99/sshd:logger
-    container_name: sshd
+    container_name: logger_sshd
     ports:
       - "2222:22"
     volumes:
-      - .:/mnt/log
+      - /home/docker/src/github.com/ujiro99/auto_logger:/mnt/log
     networks:
       logger_net:
         ipv4_address: 172.30.10.2
 
   python:
     image: ujiro99/python:logger
-    container_name: python
+    container_name: logger_python
     tty: true
     volumes:
-      - .:/mnt/log
+      - /home/docker/src/github.com/ujiro99/auto_logger:/mnt/log
       - /home/docker/src:/mnt/src
     command: "/bin/sh"
     networks:
