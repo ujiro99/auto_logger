@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pexpect
 import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+
+import pexpect
 
 import logger.params
 from logger import auto, remote
 
 
 class TestAutoLogger(TestCase):
-
     test_number = "1-1-1"
     p = logger.params.LogParam()
     p.host_name = "192.168.1.2"
@@ -55,4 +55,3 @@ class TestAutoLogger(TestCase):
         ret = a.start()
         self.assertTrue(ret)
         shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
-

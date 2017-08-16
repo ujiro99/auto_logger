@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import configparser
 import os
 import os.path as path
-import configparser
 
 
 class LogParam:
-
     FILE_NAME = 'plog.ini'
     DEFAULT = 'DEFAULT'
 
     def __init__(self):
-        self.host_name       = None  # type: str
-        self.shell           = None  # type: str
-        self.log_cmd         = None  # type: str
-        self.log_extension   = None  # type: str
-        self.remote_log_dir  = None  # type: str
+        self.host_name = None  # type: str
+        self.shell = None  # type: str
+        self.log_cmd = None  # type: str
+        self.log_extension = None  # type: str
+        self.remote_log_dir = None  # type: str
         self.remote_dist_dir = None  # type: str
-        self.local_src_dir   = None  # type: str
-        self.local_dist_dir  = None  # type: str
+        self.local_src_dir = None  # type: str
+        self.local_dist_dir = None  # type: str
 
     def read_ini(self):
         """
@@ -39,13 +38,13 @@ class LogParam:
 
         # set params to member
         f = ini_file[LogParam.DEFAULT]
-        self.host_name       = f['host_name']
-        self.shell           = f['shell']
-        self.log_cmd         = f['log_cmd']
-        self.log_extension   = f['log_extension']
-        self.remote_log_dir  = f['remote_log_dir']
+        self.host_name = f['host_name']
+        self.shell = f['shell']
+        self.log_cmd = f['log_cmd']
+        self.log_extension = f['log_extension']
+        self.remote_log_dir = f['remote_log_dir']
         self.remote_dist_dir = f['remote_dist_dir']
-        self.local_src_dir   = f['local_src_dir']
+        self.local_src_dir = f['local_src_dir']
 
         return True
 
@@ -59,13 +58,13 @@ class LogParam:
         # set member to params
         ini_file = configparser.ConfigParser()
         ini_file[LogParam.DEFAULT] = {
-            'host_name': self.host_name,
-            'shell': self.shell,
-            'log_cmd': self.log_cmd,
-            'log_extension': self.log_extension,
-            'remote_log_dir': self.remote_log_dir,
+            'host_name':       self.host_name,
+            'shell':           self.shell,
+            'log_cmd':         self.log_cmd,
+            'log_extension':   self.log_extension,
+            'remote_log_dir':  self.remote_log_dir,
             'remote_dist_dir': self.remote_dist_dir,
-            'local_src_dir': self.local_src_dir,
+            'local_src_dir':   self.local_src_dir,
         }
 
         # write to ini file

@@ -4,11 +4,11 @@
 import os
 import shutil
 from unittest import TestCase
+
 from logger.params import LogParam
 
 
 class TestLogParam(TestCase):
-
     buckup = 'plog.ini.bak'
     home = os.environ['HOME']
     current = os.getcwd()
@@ -76,4 +76,3 @@ class TestLogParam(TestCase):
         self.assertEqual(p.log_extension, p2.log_extension)
 
         os.remove(path)
-

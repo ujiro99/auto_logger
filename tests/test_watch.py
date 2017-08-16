@@ -5,6 +5,7 @@ import os
 import threading
 import time
 from unittest import TestCase
+
 from logger import watch
 
 
@@ -36,7 +37,6 @@ class WriteThread(threading.Thread):
 
 class TestFile(TestCase):
     def test_file(self):
-
         wd = os.getcwd()
 
         path = wd

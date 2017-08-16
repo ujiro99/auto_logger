@@ -3,13 +3,13 @@
 
 import os
 import time
+
 import pexpect
 
 from logger import remote
 
 
 class AutoLogger:
-
     TIME_FMT = "%Y-%m-%d_%H%M%S"
     CONSOLE_LOG_NAME = "console.log"
     END_LINE = "\r\n"

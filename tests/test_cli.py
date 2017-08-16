@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import configparser
 import os
 import shutil
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
+
 import click
-import configparser
+from click.testing import CliRunner
 from scripttest import TestFileEnvironment
+
 from logger import auto, cli, params
 from logger.cli import cmd, start, main, init
 from logger.params import LogParam
 
-from unittest import TestCase
-from click.testing import CliRunner
-from unittest.mock import MagicMock, patch
-
 
 class TestCli(TestCase):
-
     @classmethod
     def setUpClass(cls):
         file_in_tests = os.path.join(os.getcwd(), 'tests', LogParam.FILE_NAME)
@@ -109,4 +109,3 @@ class TestCli(TestCase):
         print(result)
         self.assertRegex(result.stdout, '正常に終了しました。')
         self.assertTrue(len(result.files_created) > 0)
-

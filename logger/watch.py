@@ -8,6 +8,7 @@ import watchdog
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
+
 class ChangeHandler(PatternMatchingEventHandler):
     def __init__(self, dir: str, filename: list):
         ext = os.path.splitext(filename)[1]

@@ -3,16 +3,17 @@
 
 import os
 import shutil
-import pexpect
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+
+import pexpect
 
 import logger.auto
 import logger.params
 from logger import remote, watch
 
-class TestRemoteLogger(TestCase):
 
+class TestRemoteLogger(TestCase):
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
     def test_get_log_timeout(self):
         params = logger.params.LogParam()
