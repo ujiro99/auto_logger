@@ -16,7 +16,7 @@ class AutoLogger:
     PROMPT = "[#$%>]"
     TIMEOUT_EXPECT = 10
 
-    def __init__(self, params, test_number):
+    def __init__(self, params, test_number=None):
         """
          Constructor.
         :param logger.params.LogParam params: Parameters to decide behaviors of command.
@@ -69,7 +69,7 @@ class AutoLogger:
         p.expect(pexpect.EOF)
         return True
 
-    def execute(self):
+    def start(self):
         """
         Executes all logging process.
         :return: Result of getting remote log. True: success | False: fail
@@ -86,3 +86,13 @@ class AutoLogger:
         remote_logger.get_log()
         return remote_logger.move_log()
 
+    def get(self):
+        """
+        Get a remote log.
+        :return: Result of getting remote log. True: success | False: fail
+        :rtype: bool
+        """
+        self.params.local_dist_dir = os.getcwd()
+        remote_logger = remote.RemoteLogger(self.params)
+        remote_logger.get_log()
+        return remote_logger.move_log()

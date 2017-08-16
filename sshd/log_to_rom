@@ -1,0 +1,14 @@
+#!/bin/sh
+
+FILENAME=$(date '+%Y%m%d_%H%M%S').tar.gz
+
+touch $FILENAME
+
+last_num=$(expr 1 + \( $RANDOM % 10 \))
+
+for i in `seq 1 ${last_num}`
+do
+    sleep 0.2
+    echo $i
+    echo $i >> $FILENAME;
+done

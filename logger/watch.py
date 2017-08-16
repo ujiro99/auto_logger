@@ -8,7 +8,6 @@ import watchdog
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-
 class ChangeHandler(PatternMatchingEventHandler):
     def __init__(self, dir: str, filename: list):
         ext = os.path.splitext(filename)[1]
@@ -60,7 +59,7 @@ def file(dirname, filename, timeout):
 
     is_exists = os.path.exists(os.path.join(dirname, filename))
 
-    if timeout <= 0 and not is_exists:
+    if timeout <= 0 or not is_exists:
         print("- time out")
         return False
 

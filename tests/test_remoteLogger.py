@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import pexpect
@@ -21,6 +24,8 @@ class TestRemoteLogger(TestCase):
         p.sendline = MagicMock()
         p.match = MagicMock()
         p.terminate = MagicMock()
+        p.before = None
+        p.after = None
         array = [MagicMock()]
         p.match.groups = MagicMock(return_value=array)
         sentinel = "__tmp__.%s" % params.log_extension

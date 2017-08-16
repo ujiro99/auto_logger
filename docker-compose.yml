@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  sshd:
+    image: ujiro99/sshd:logger
+    container_name: logger_sshd
+    ports:
+      - "2222:22"
+    volumes:
+      - /home/docker/src/github.com/ujiro99/auto_logger:/mnt/log
+    networks:
+      logger_net:
+        ipv4_address: 172.30.10.2
+
+  python:
+    image: ujiro99/python:logger
+    container_name: logger_python
+    tty: true
+    volumes:
+      - /home/docker/src/github.com/ujiro99/auto_logger:/mnt/log
+      - /home/docker/src:/mnt/src
+    command: "/bin/sh"
+    networks:
+      logger_net:
+        ipv4_address: 172.30.10.3
+
+networks:
+  logger_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.10.0/24
+          gateway: 172.30.10.1

@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import click
+import configparser
+from scripttest import TestFileEnvironment
 from logger import auto, cli, params
 from logger.cli import cmd, start, main, init
 from logger.params import LogParam
@@ -24,25 +29,25 @@ class TestCli(TestCase):
         file_current = os.path.join(os.getcwd(), LogParam.FILE_NAME)
         os.remove(file_current)
 
-    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=True))
     def test_cmd(self):
         runner = CliRunner()
         result = runner.invoke(cmd, ['-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=True))
     def test_cmd__start(self):
         runner = CliRunner()
         result = runner.invoke(cmd, ['start', '-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=True))
     def test_start(self):
         runner = CliRunner()
         result = runner.invoke(start, ['-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=False))
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=False))
     def test_start__fail(self):
         runner = CliRunner()
         result = runner.invoke(start, ['-t', '1-1-1'])
@@ -51,7 +56,7 @@ class TestCli(TestCase):
     @patch.object(click, 'prompt', MagicMock(return_value=""))
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
-    @patch.object(auto.AutoLogger, 'execute', MagicMock(return_value=True))
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=True))
     def test_start__init(self):
         runner = CliRunner()
         result = runner.invoke(start, ['-t', '1-1-1'])
@@ -81,4 +86,25 @@ class TestCli(TestCase):
     @patch.object(cli, 'cmd', MagicMock(return_value=True))
     def test_main(self):
         main()
+
+    def test_script__start(self):
+        env = TestFileEnvironment('./.tmp')
+
+        ini = configparser.ConfigParser()
+        ini[LogParam.DEFAULT] = {
+            'host_name':       'root@172.30.10.2',
+            'shell':           'ssh',
+            'log_cmd':         'log_to_rom',
+            'log_extension':   'tar.gz',
+            'remote_log_dir':  '/root',
+            'remote_dist_dir': '/mnt/log',
+            'local_src_dir':   '../',
+        }
+        file_path = os.path.join(os.getcwd(), '.tmp', LogParam.FILE_NAME)
+        with open(file_path, 'w') as file:
+            ini.write(file)
+
+        result = env.run('../logger/cli.py get', cwd='.tmp', expect_stderr=True)
+        self.assertRegex(result.stdout, '正常に終了しました。')
+        self.assertTrue(len(result.files_created) > 0)
 
