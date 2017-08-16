@@ -104,7 +104,8 @@ class TestCli(TestCase):
         with open(file_path, 'w') as file:
             ini.write(file)
 
-        result = env.run('../logger/cli.py get', cwd='.tmp', expect_stderr=True)
+        result = env.run('../logger/cli.py get --debug', cwd='.tmp', expect_stderr=True)
+        print(result)
         self.assertRegex(result.stdout, '正常に終了しました。')
         self.assertTrue(len(result.files_created) > 0)
 
