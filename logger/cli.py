@@ -3,8 +3,7 @@
 
 import click
 
-from logger import auto
-from logger import params
+from logger import auto, params, log
 
 # messages.
 PROMPT_SHELL_CMD = "- remote shell command"
@@ -17,8 +16,9 @@ PROMPT_LOCAL_SRC_DIR = "- local src dir"
 
 @click.group(invoke_without_command=True)
 @click.option('-t', '--test-number', type=str, help='試験番号。ログを保存するディレクトリ名に使用されます。')
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
 @click.pass_context
-def cmd(ctx: click.core.Context, test_number: str):
+def cmd(ctx: click.core.Context, test_number: str, debug: bool):
     """
     サブコマンドを省略した場合、start が実行されます。
     """
@@ -29,7 +29,8 @@ def cmd(ctx: click.core.Context, test_number: str):
 @cmd.command()
 @click.pass_context
 @click.option('-t', '--test-number', type=str, help='試験番号。ログを保存するディレクトリ名に使用されます。')
-def start(ctx: click.core.Context, test_number: str) -> object:
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
     """
     コンソール操作ログを含む、ログの取得を開始します。
 
@@ -37,6 +38,9 @@ def start(ctx: click.core.Context, test_number: str) -> object:
     試験番号毎のディレクトリを作成し、その中にログを保存します。
     ログ取得を終了するには、 exit を2回入力してください。
     """
+    # for debug
+    if debug:
+        log.set_level(log.Level.DEBUG)
 
     # check parameters.
     if test_number is None:
@@ -69,10 +73,15 @@ def start(ctx: click.core.Context, test_number: str) -> object:
 
 @cmd.command()
 @click.pass_context
-def get(ctx: click.core.Context) -> object:
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def get(ctx: click.core.Context, debug: bool) -> object:
     """
     ログを取得します。
     """
+    # for debug
+    if debug:
+        log.set_level(log.Level.DEBUG)
+
     # load other parameters from ini file
     p = params.LogParam()
     ret = p.read_ini()

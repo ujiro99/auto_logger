@@ -1,3 +1,4 @@
+import enum
 import logging
 from logging import getLogger, StreamHandler
 
@@ -8,6 +9,23 @@ logger = getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 logger.propagate = False
+
+
+class Level(enum.Enum):
+    FATAL = logging.FATAL
+    ERROR = logging.ERROR
+    WARN  = logging.WARN
+    INFO  = logging.INFO
+    DEBUG = logging.DEBUG
+
+
+def set_level(level: Level):
+    """
+    Set logging level
+    :param Level level: Log level
+    """
+    logger.setLevel(level.value)
+    handler.setLevel(level.value)
 
 def d(msg):
     """
