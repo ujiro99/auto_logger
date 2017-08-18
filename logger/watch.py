@@ -8,6 +8,8 @@ import watchdog
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
+from logger import log
+
 
 class ChangeHandler(PatternMatchingEventHandler):
     def __init__(self, dir: str, filename: list):
@@ -17,13 +19,13 @@ class ChangeHandler(PatternMatchingEventHandler):
         self.modified = False  # type: bool
 
     def on_created(self, event: watchdog.events.FileCreatedEvent):
-        print("  on_created %s" % event.src_path)
+        log.d("  on_created %s" % event.src_path)
         if event.src_path != self.file_path:
             return
         self.modified = True
 
     def on_modified(self, event: watchdog.events.FileModifiedEvent):
-        print("  on_modified %s" % event.src_path)
+        log.d("  on_modified %s" % event.src_path)
         if event.src_path != self.file_path:
             return
         self.modified = True
@@ -51,7 +53,7 @@ def file(dirname, filename, timeout):
             timeout -= 0.1
             interval -= 0.1
             if handler.modified is True:
-                print('- now writing... %s ' % filename)
+                log.i('- now writing... %s ' % filename)
                 handler.modified = False
                 interval = UPDATE_INTERVAL
 
@@ -61,7 +63,7 @@ def file(dirname, filename, timeout):
     is_exists = os.path.exists(os.path.join(dirname, filename))
 
     if timeout <= 0 or not is_exists:
-        print("- time out")
+        log.i("- time out")
         return False
 
     observer.stop()

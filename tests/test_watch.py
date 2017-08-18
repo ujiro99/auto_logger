@@ -38,13 +38,11 @@ class WriteThread(threading.Thread):
 class TestFile(TestCase):
     def test_file(self):
         wd = os.getcwd()
-
-        path = wd
         filename = 'test.tar.gz'
         timeout = 10
-        w = WriteThread(os.path.join(wd, filename), 10, 0.1)
+        w = WriteThread(os.path.join(wd, filename), 5, 0.1)
         w.start()
-        is_created = watch.file(path, filename, timeout)
+        is_created = watch.file(wd, filename, timeout)
         w.stop()
         w.join()
         self.assertTrue(is_created)

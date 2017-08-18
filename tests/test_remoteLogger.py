@@ -18,7 +18,7 @@ class TestRemoteLogger(TestCase):
     def test_get_log_timeout(self):
         params = logger.params.LogParam()
         remote_logger = remote.RemoteLogger(params)
-        remote.RemoteLogger.TIMEOUT_LOGGING = 1
+        remote.RemoteLogger.TIMEOUT_LOGGING = 0.5
 
         p = pexpect.spawn()
         p.expect = MagicMock()

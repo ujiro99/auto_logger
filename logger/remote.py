@@ -64,8 +64,8 @@ class RemoteLogger:
         # wait log file created
         timeout = RemoteLogger.TIMEOUT_LOGGING
         while timeout > 0:
-            time.sleep(1)
-            timeout -= 1
+            time.sleep(0.1)
+            timeout -= 0.1
             after = self.__get_file_set()
             created = after - before
             if len(created) != 0:
