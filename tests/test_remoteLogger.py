@@ -14,6 +14,20 @@ from logger import remote, watch
 
 
 class TestRemoteLogger(TestCase):
+    def test_get_log(self):
+        p = logger.params.LogParam()
+        p.host_name = 'root@172.30.10.2'
+        p.shell = 'ssh'
+        p.log_cmd = 'log_to_rom'
+        p.log_extension = 'tar.gz'
+        p.remote_log_dir = '/root'
+        p.remote_dist_dir = '/mnt/log'
+        remote_logger = remote.RemoteLogger(p)
+        ret = remote_logger.get_log()
+        self.assertTrue(ret)
+        self.assertTrue(os.path.exists(os.path.join('.', remote_logger.filename)))
+        os.remove(os.path.join('.', remote_logger.filename))
+
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
     def test_get_log_timeout(self):
         params = logger.params.LogParam()

@@ -50,8 +50,14 @@ class TestAutoLogger(TestCase):
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
     @patch.object(remote, 'RemoteLogger', MagicMock())
-    def test_execute(self):
+    def test_start(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
         ret = a.start()
         self.assertTrue(ret)
         shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
+    @patch.object(remote, 'RemoteLogger', MagicMock())
+    def test_get(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        ret = a.get()
+        self.assertTrue(ret)
