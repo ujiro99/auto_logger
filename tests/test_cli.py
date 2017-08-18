@@ -71,6 +71,12 @@ class TestCli(TestCase):
         result = runner.invoke(start, ['--debug', '-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
 
+    def test_start__no_testnumber(self):
+        runner = CliRunner()
+        result = runner.invoke(start)
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(result.output, 'Error: test-number を設定してください。\n')
+
     @patch.object(click, 'prompt', MagicMock(return_value=""))
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
@@ -95,12 +101,6 @@ class TestCli(TestCase):
         result = runner.invoke(init, args)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.output, '設定保存完了: setting_file\n')
-
-    def test_start__no_testnumber(self):
-        runner = CliRunner()
-        result = runner.invoke(start)
-        self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.output, 'Error: test-number を設定してください。\n')
 
     @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
     def test_get(self):
@@ -127,7 +127,7 @@ class TestCli(TestCase):
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False, side_effect=Exception('exception')))
-    def test_start__exception(self):
+    def test_get__exception(self):
         runner = CliRunner()
         result = runner.invoke(get, ['--debug'])
         self.assertEqual(result.exit_code, 0)
@@ -136,7 +136,7 @@ class TestCli(TestCase):
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
     @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
-    def test_start__init(self):
+    def test_get__init(self):
         runner = CliRunner()
         result = runner.invoke(get)
         self.assertEqual(result.exit_code, 0)
