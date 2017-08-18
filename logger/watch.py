@@ -52,6 +52,7 @@ def file(dirname, filename, timeout):
             time.sleep(0.1)
             timeout -= 0.1
             interval -= 0.1
+            log.d('- time out remain %.2f, update interval %.2f' % (timeout, interval))
             if handler.modified is True:
                 log.i('- now writing... %s ' % filename)
                 handler.modified = False
@@ -62,7 +63,7 @@ def file(dirname, filename, timeout):
 
     is_exists = os.path.exists(os.path.join(dirname, filename))
 
-    if timeout <= 0 or not is_exists:
+    if timeout <= 0 and not is_exists:
         log.i("- time out")
         return False
 

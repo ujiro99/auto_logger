@@ -2,54 +2,87 @@
 # -*- coding: utf-8 -*-
 
 import os
-import threading
+from threading import Thread
 import time
 from unittest import TestCase
 
-from logger import watch
+from logger import watch, log
 
 
-class WriteThread(threading.Thread):
+class WriteThread:
     def __init__(self, filepath, cycle, sleep_time):
-        super(WriteThread, self).__init__()
-        self.stop_event = threading.Event()
+        self.__stop = False
         self.filepath = filepath
         self.cycle = cycle
         self.time = sleep_time
+        self.t = Thread(target=self.__write)
 
-    def run(self):
+    def __write(self):
+        log.d("=== start sub thread (sub class) === ")
         f = open(self.filepath, "w")
-        print(" === start sub thread (sub class) === ")
         for i in range(self.cycle):
+            if self.__stop:
+                log.d(" canceled")
+                break
             time.sleep(self.time)
             f.write("%d\n" % i)
             f.flush()
-            print("write line: %d" % i)
-            if self.stop_event.is_set():
-                break
-        print(" === end sub thread (sub class) === ")
+            log.d(" write line: %d" % i)
         f.close()
+        log.d("=== end sub thread (sub class) === ")
+
+    def start(self):
+        self.t.start()
 
     def stop(self):
+        self.__stop = True
+        self.t.join()
         os.remove(self.filepath)
-        self.stop_event.set()
 
 
 class TestFile(TestCase):
+
     def test_file(self):
+        log.set_level(log.Level.DEBUG)
+
         wd = os.getcwd()
-        filename = 'test.tar.gz'
+        filename = 'test_file.tar.gz'
         timeout = 10
         w = WriteThread(os.path.join(wd, filename), 5, 0.1)
         w.start()
         is_created = watch.file(wd, filename, timeout)
         w.stop()
-        w.join()
         self.assertTrue(is_created)
 
     def test_file__timeout(self):
         path = "./"
-        filename = "test.tar.gz"
+        filename = "test_file__timeout.tar.gz"
         timeout = 0.1
         is_created = watch.file(path, filename, timeout)
         self.assertFalse(is_created)
+
+    def test_file__other_file(self):
+        log.set_level(log.Level.DEBUG)
+        filename = "test_file__other_file.tar.gz"
+        wd = os.getcwd()
+        w = WriteThread(os.path.join(wd, filename + "1"), 5, 0.1)
+        w.start()
+        path = "./"
+        timeout = 0.2
+        is_created = watch.file(path, filename, timeout)
+        w.stop()
+        self.assertFalse(is_created)
+
+    def test_file__already_exists(self):
+        path = "./"
+        filename = "test_file__already_exists.tar.gz"
+        timeout = 0.1
+
+        f = open(os.path.join(os.getcwd(), filename), "w")
+        f.write("0")
+        f.flush()
+        f.close()
+
+        is_created = watch.file(path, filename, timeout)
+        self.assertTrue(is_created)
+        os.remove(os.path.join(os.getcwd(), filename))

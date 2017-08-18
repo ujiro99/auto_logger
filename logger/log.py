@@ -3,12 +3,12 @@
 
 import enum
 import logging
-from logging import getLogger, StreamHandler
+from logging import StreamHandler
 
 handler = StreamHandler()
 handler.setLevel(logging.INFO)
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 logger.propagate = False
@@ -29,6 +29,11 @@ def set_level(level: Level):
     """
     logger.setLevel(level.value)
     handler.setLevel(level.value)
+    if level == Level.DEBUG:
+        f = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s")
+        f.default_time_format = '%H:%M:%S'
+        f.default_msec_format = '%s.%03d'
+        handler.setFormatter(f)
 
 
 def d(msg):
