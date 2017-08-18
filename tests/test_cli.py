@@ -12,7 +12,7 @@ from click.testing import CliRunner
 from scripttest import TestFileEnvironment
 
 from logger import auto, cli, params
-from logger.cli import cmd, start, main, init
+from logger.cli import cmd, start, get, main, init
 from logger.params import LogParam
 
 
@@ -53,6 +53,24 @@ class TestCli(TestCase):
         result = runner.invoke(start, ['-t', '1-1-1'])
         self.assertEqual(result.exit_code, 0)
 
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=True))
+    def test_start__debug(self):
+        runner = CliRunner()
+        result = runner.invoke(start, ['--debug', '-t', '1-1-1'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=False, side_effect=IOError('io error')))
+    def test_start__ioerror(self):
+        runner = CliRunner()
+        result = runner.invoke(start, ['--debug', '-t', '1-1-1'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'start', MagicMock(return_value=False, side_effect=Exception('exception')))
+    def test_start__exception(self):
+        runner = CliRunner()
+        result = runner.invoke(start, ['--debug', '-t', '1-1-1'])
+        self.assertEqual(result.exit_code, 0)
+
     @patch.object(click, 'prompt', MagicMock(return_value=""))
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
@@ -83,6 +101,46 @@ class TestCli(TestCase):
         result = runner.invoke(start)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.output, 'Error: test-number を設定してください。\n')
+
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    def test_get(self):
+        runner = CliRunner()
+        result = runner.invoke(get)
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False))
+    def test_get__fail(self):
+        runner = CliRunner()
+        result = runner.invoke(get)
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    def test_get__debug(self):
+        runner = CliRunner()
+        result = runner.invoke(get, ['--debug'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False, side_effect=IOError('io error')))
+    def test_get__ioerror(self):
+        runner = CliRunner()
+        result = runner.invoke(get, ['--debug'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False, side_effect=Exception('exception')))
+    def test_start__exception(self):
+        runner = CliRunner()
+        result = runner.invoke(get, ['--debug'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(click, 'prompt', MagicMock(return_value=""))
+    @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
+    @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
+    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    def test_start__init(self):
+        runner = CliRunner()
+        result = runner.invoke(get)
+        self.assertEqual(result.exit_code, 0)
+        self.assertRegex(result.output, '設定保存完了: setting_file.*')
 
     @patch.object(cli, 'cmd', MagicMock(return_value=True))
     def test_main(self):
