@@ -47,29 +47,39 @@ class TestFile(TestCase):
 
         wd = os.getcwd()
         filename = 'test_file.tar.gz'
-        timeout = 10
         w = WriteThread(os.path.join(wd, filename), 5, 0.1)
         w.start()
+        timeout = 10
         is_created = watch.file(wd, filename, timeout)
         w.stop()
         self.assertTrue(is_created)
 
-    def test_file__timeout(self):
+    def test_file__not_exists(self):
         path = "./"
-        filename = "test_file__timeout.tar.gz"
+        filename = "test_file__not_exists.tar.gz"
         timeout = 0.1
         is_created = watch.file(path, filename, timeout)
         self.assertFalse(is_created)
+
+    def test_file__timeout(self):
+        path = "./"
+        filename = "test_file__timeout.tar.gz"
+        wd = os.getcwd()
+        w = WriteThread(os.path.join(wd, filename), 5, 0.1)
+        w.start()
+        timeout = 0.1
+        is_created = watch.file(path, filename, timeout)
+        w.stop()
+        self.assertTrue(is_created)
 
     def test_file__other_file(self):
         log.set_level(log.Level.DEBUG)
         filename = "test_file__other_file.tar.gz"
         wd = os.getcwd()
-        w = WriteThread(os.path.join(wd, filename + "1"), 5, 0.1)
+        w = WriteThread(os.path.join(wd, "__" + filename), 5, 0.1)
         w.start()
-        path = "./"
-        timeout = 0.2
-        is_created = watch.file(path, filename, timeout)
+        timeout = 1
+        is_created = watch.file(wd, filename, timeout)
         w.stop()
         self.assertFalse(is_created)
 

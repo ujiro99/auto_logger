@@ -12,7 +12,7 @@ from logger import log
 
 
 class ChangeHandler(PatternMatchingEventHandler):
-    def __init__(self, dir: str, filename: list):
+    def __init__(self, dir: str, filename: str):
         ext = os.path.splitext(filename)[1]
         super(ChangeHandler, self).__init__(patterns=["*%s" % ext])
         self.file_path = os.path.join(dir, filename)  # type: str
@@ -63,7 +63,10 @@ def file(dirname, filename, timeout):
 
     is_exists = os.path.exists(os.path.join(dirname, filename))
 
-    if timeout <= 0 and not is_exists:
+    if is_exists:
+        if timeout <= 0:
+            log.w("- The file still updating.")
+    else:
         log.i("- time out")
         return False
 
