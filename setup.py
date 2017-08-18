@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='autologger',
-    version='0.3.1',
+    version='0.3.2',
     author='Yujiro Takeda',
     packages=find_packages(),
     include_package_data=True,
