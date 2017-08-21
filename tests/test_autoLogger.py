@@ -28,6 +28,47 @@ class TestAutoLogger(TestCase):
         date_str = a.generate_date_str()
         self.assertRegex(date_str, "\d\d-\d\d-\d\d_\d\d\d\d\d\d")
 
+    def test_generate_serial_number(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "01")
+        shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
+    def test_generate_serial_number__dir_not_exists(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "01")
+
+    def test_generate_serial_number__01_10a(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number, '10a'))
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "01")
+        shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
+    def test_generate_serial_number__02(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number, '01'))
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "02")
+        shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
+    def test_generate_serial_number__02_10a(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number, '01'))
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number, '10a'))
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "02")
+        shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
+    def test_generate_serial_number__1000(self):
+        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
+        os.makedirs(os.path.join(os.getcwd(), TestAutoLogger.test_number, '999'))
+        dir_name = a.generate_serial_number()
+        self.assertEqual(dir_name, "1000")
+        shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
+
     def test_create_dir(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
         path = a.create_dir()

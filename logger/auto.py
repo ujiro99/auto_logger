@@ -3,6 +3,7 @@
 
 import os
 import time
+import re
 
 import pexpect
 
@@ -32,12 +33,27 @@ class AutoLogger:
         t = time.localtime()
         return time.strftime(AutoLogger.TIME_FMT, t)
 
+    def generate_serial_number(self):
+        """
+        :rtype: str
+        """
+        path = os.path.join(os.getcwd(), self.test_number)
+        if not os.path.exists(path):
+            return '01'
+
+        items = os.listdir(path)
+        dirs = [x for x in items if not re.match('^\d*$', x) is None]
+        if len(dirs) == 0:
+            return '01'
+        else:
+            return '{0:02d}'.format(int(max(dirs)) + 1)
+
     def create_dir(self):
         """
         Create test case number + date directory.
         :rtype: str
         """
-        path = os.path.join(os.getcwd(), self.test_number, self.generate_date_str())
+        path = os.path.join(os.getcwd(), self.test_number, self.generate_serial_number())
         os.makedirs(path)
         if not os.path.exists(path):
             raise IOError
