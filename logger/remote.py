@@ -69,6 +69,37 @@ class RemoteLogger:
         self.__disconnect()
         return True
 
+    def move_log(self):
+        """
+        Move log file
+        :return Result fo move. success: True, failed: False.
+        :rtype bool
+        """
+        is_created = watch.file(self.params.local_src_dir,
+                                self.filename,
+                                RemoteLogger.TIMEOUT_MOVE)
+
+        log_path = os.path.join(self.params.local_src_dir, self.filename)
+        if not is_created:
+            log.w("- not found: %s" % log_path)
+            return False
+
+        shutil.move(log_path, self.params.local_dist_dir)
+        log.i("- moved: %s" % self.params.local_dist_dir)
+
+        return True
+
+    def list_log(self):
+        """
+        List remote log files.
+        :return: List of files
+        :rtype list of str
+        """
+        self.__connect()
+        ls = self.__get_file_list()
+        self.__disconnect()
+        return ls
+
     def __connect(self):
         """
         Connect to remote shell.
@@ -136,35 +167,4 @@ class RemoteLogger:
 
         self.__send("rm " + tmp_file)
         log.d(ls)
-        return ls
-
-    def move_log(self):
-        """
-        Move log file
-        :return Result fo move. success: True, failed: False.
-        :rtype bool
-        """
-        is_created = watch.file(self.params.local_src_dir,
-                                self.filename,
-                                RemoteLogger.TIMEOUT_MOVE)
-
-        log_path = os.path.join(self.params.local_src_dir, self.filename)
-        if not is_created:
-            log.w("- not found: %s" % log_path)
-            return False
-
-        shutil.move(log_path, self.params.local_dist_dir)
-        log.i("- moved: %s" % self.params.local_dist_dir)
-
-        return True
-
-    def list_log(self):
-        """
-        List remote log files.
-        :return: List of files
-        :rtype list of str
-        """
-        self.__connect()
-        ls = self.__get_file_list()
-        self.__disconnect()
         return ls
