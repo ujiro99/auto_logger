@@ -88,3 +88,20 @@ class TestRemoteLogger(TestCase):
         self.assertFalse(ret)
         is_exists = os.path.exists(os.path.join(p.local_dist_dir, remote_logger.filename))
         self.assertFalse(is_exists)
+
+    def test_list_log(self):
+        files = ["1.tar.gz", "2.tar.gz"]
+        for f in files:
+            with open(os.path.join("/mnt/log", f), "w") as fd:
+                fd.write("")
+
+        os.chdir("./tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        p.remote_log_dir = "/mnt/log"
+        remote_logger = remote.RemoteLogger(p)
+        ls = remote_logger.list_log()
+        self.assertEqual(ls, files)
+
+        for f in files:
+            os.remove(os.path.join("/mnt/log", f))

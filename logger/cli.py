@@ -3,7 +3,7 @@
 
 import click
 
-from logger import auto, params, log
+from logger import auto, params, log, remote
 
 # messages.
 PROMPT_SHELL_CMD = "- remote shell command"
@@ -141,6 +141,28 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
     # Write to ~/prog.ini
     path = p.write_ini()
     click.echo("設定保存完了: %s" % path)
+
+
+@cmd.command()
+@click.pass_context
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def ls(ctx: click.core.Context, debug: bool):
+    """
+    Remoteに保存されたログファイルの一覧を取得します。
+    """
+    if debug:
+        log.set_level(log.Level.DEBUG)
+
+    p = __get_params(ctx)
+
+    try:
+        for f in remote.RemoteLogger(p).list_log():
+            click.echo(f)
+
+    except IOError as e:
+        click.echo(e.args)
+    except Exception as e:
+        click.echo(e.args)
 
 
 def main():

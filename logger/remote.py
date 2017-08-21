@@ -114,7 +114,7 @@ class RemoteLogger:
         """
         Get current directory's file set.
         :return: File set.
-        :rtype set
+        :rtype set of str
         """
         return set(self.__get_file_list())
 
@@ -122,16 +122,19 @@ class RemoteLogger:
         """
         Get current directory's file list
         :return: File list.
-        :rtype list
+        :rtype list of str
         """
-        self.__send("touch %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
+        tmp_file = "%s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension)
+
+        self.__send("touch " + tmp_file)
         self.p.sendline("ls *.%s -1 --color=no" % self.params.log_extension)
         self.p.expect("no(.*)" + RemoteLogger.PROMPT)
 
         ls = self.p.match.groups()[0].decode("utf-8")  # type: str
-        ls = filter(lambda x: bool(re.match('\S+', x)), ls.splitlines())
+        ls = list(filter(lambda x: bool(re.match('\S+', x)), ls.splitlines()))
+        ls.remove(tmp_file)
 
-        self.__send("rm %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
+        self.__send("rm " + tmp_file)
         log.d(ls)
         return ls
 
@@ -154,3 +157,14 @@ class RemoteLogger:
         log.i("- moved: %s" % self.params.local_dist_dir)
 
         return True
+
+    def list_log(self):
+        """
+        List remote log files.
+        :return: List of files
+        :rtype list of str
+        """
+        self.__connect()
+        ls = self.__get_file_list()
+        self.__disconnect()
+        return ls

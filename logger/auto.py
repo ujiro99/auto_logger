@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import time
 import re
+import time
 
 import pexpect
 
