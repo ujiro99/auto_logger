@@ -92,7 +92,7 @@ class TestRemoteLogger(TestCase):
     def test_list_log(self):
         files = ["1.tar.gz", "2.tar.gz"]
         for f in files:
-            with open(os.path.join("/mnt/log", f), "w") as fd:
+            with open(f, "w") as fd:
                 fd.write("")
 
         os.chdir("./tests")
@@ -103,5 +103,6 @@ class TestRemoteLogger(TestCase):
         ls = remote_logger.list_log()
         self.assertEqual(ls, files)
 
+        os.chdir("..")
         for f in files:
-            os.remove(os.path.join("/mnt/log", f))
+            os.remove(f)
