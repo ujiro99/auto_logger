@@ -66,10 +66,7 @@ class RemoteLogger:
         log.i("- move file to %s" % self.params.remote_dist_dir)
         self.__send("mv %s %s" % (self.filename, self.params.remote_dist_dir))
 
-        # terminate
-        self.p.terminate()
-        self.p.expect(pexpect.EOF)
-
+        self.__disconnect()
         return True
 
     def __connect(self):
@@ -91,6 +88,13 @@ class RemoteLogger:
         p.timeout = RemoteLogger.TIMEOUT_EXPECT
         self.__send("PS1='#'")
         self.__send("cd %s" % self.params.remote_log_dir)
+
+    def __disconnect(self):
+        """
+        Disconnect from remote shell.
+        """
+        self.p.terminate()
+        self.p.expect(pexpect.EOF)
 
     def __send(self, cmd):
         """

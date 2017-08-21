@@ -47,13 +47,7 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
     if test_number is None:
         return click.echo("Error: test-number を設定してください。")
 
-    # load other parameters from ini file
-    p = params.LogParam()
-    ret = p.read_ini()
-    if not ret:
-        click.echo('ログ取得に使用するパラメータを設定してください。')
-        ctx.invoke(init)
-        p.read_ini()
+    p = __get_params(ctx)
 
     # execute command
     click.echo("ログ取得を開始します。終了するには exit を2回入力してください。")
@@ -84,13 +78,7 @@ def get(ctx: click.core.Context, debug: bool) -> object:
     if debug:
         log.set_level(log.Level.DEBUG)
 
-    # load other parameters from ini file
-    p = params.LogParam()
-    ret = p.read_ini()
-    if not ret:
-        click.echo('ログ取得に使用するパラメータを設定してください。')
-        ctx.invoke(init)
-        p.read_ini()
+    p = __get_params(ctx)
 
     # execute command
     logger = auto.AutoLogger(p)
@@ -157,6 +145,24 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
 
 def main():
     cmd(auto_envvar_prefix='MRN')
+
+
+def __get_params(ctx):
+    """
+    Get parameters from config file.
+    :param click.core.Context ctx: Context object of click.
+    :return: parameters
+    :rtype LogParam
+    """
+    # load parameters from ini file
+    p = params.LogParam()
+    ret = p.read_ini()
+    if not ret:
+        click.echo('ログ取得に使用するパラメータを設定してください。')
+        ctx.invoke(init)
+        p.read_ini()
+
+    return p
 
 
 if __name__ == '__main__':
