@@ -97,8 +97,3 @@ class TestAutoLogger(TestCase):
         self.assertTrue(ret)
         shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
 
-    @patch.object(remote, 'RemoteLogger', MagicMock())
-    def test_get(self):
-        a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
-        ret = a.get()
-        self.assertTrue(ret)

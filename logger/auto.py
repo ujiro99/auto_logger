@@ -99,16 +99,5 @@ class AutoLogger:
 
         # get remote log
         remote_logger = remote.RemoteLogger(self.params)
-        remote_logger.get_log()
-        return remote_logger.move_log()
+        return remote_logger.get_log()
 
-    def get(self):
-        """
-        Get a remote log.
-        :return: Result of getting remote log. True: success | False: fail
-        :rtype: bool
-        """
-        self.params.local_dist_dir = os.getcwd()
-        remote_logger = remote.RemoteLogger(self.params)
-        remote_logger.get_log()
-        return remote_logger.move_log()

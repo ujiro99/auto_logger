@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import click
 
 from logger import auto, params, log, remote
@@ -69,22 +70,26 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 
 @cmd.command()
 @click.pass_context
+@click.argument('filename', default=None, required=False)
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def get(ctx: click.core.Context, debug: bool) -> object:
+def get(ctx: click.core.Context, filename: str, debug: bool):
     """
-    ログを取得します。
+    filenameに指定したファイルを取得します。省略した場合は新たに取得します。
     """
     # for debug
     if debug:
         log.set_level(log.Level.DEBUG)
 
     p = __get_params(ctx)
+    p.local_dist_dir = os.getcwd()
 
     # execute command
-    logger = auto.AutoLogger(p)
     ret = False
     try:
-        ret = logger.get()
+        if filename is None:
+            ret = remote.RemoteLogger(p).get_log()
+        else:
+            ret = remote.RemoteLogger(p).move_log(filename)
     except IOError as e:
         click.echo(e.args)
     except Exception as e:

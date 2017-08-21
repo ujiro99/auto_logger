@@ -11,7 +11,7 @@ import click
 from click.testing import CliRunner
 from scripttest import TestFileEnvironment
 
-from logger import auto, cli, params
+from logger import auto, remote, cli, params
 from logger.cli import cmd, start, get, main, init, ls, clear
 from logger.params import LogParam
 
@@ -102,42 +102,50 @@ class TestCli(TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.output, '設定保存完了: setting_file\n')
 
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=True))
     def test_get(self):
         runner = CliRunner()
         result = runner.invoke(get)
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=False))
     def test_get__fail(self):
         runner = CliRunner()
         result = runner.invoke(get)
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=True))
     def test_get__debug(self):
         runner = CliRunner()
         result = runner.invoke(get, ['--debug'])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False, side_effect=IOError('io error')))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=False, side_effect=IOError('io error')))
     def test_get__ioerror(self):
         runner = CliRunner()
         result = runner.invoke(get, ['--debug'])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=False, side_effect=Exception('exception')))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=False, side_effect=Exception('exception')))
     def test_get__exception(self):
         runner = CliRunner()
         result = runner.invoke(get, ['--debug'])
         self.assertEqual(result.exit_code, 0)
 
+    @patch.object(remote.RemoteLogger, 'move_log', MagicMock(return_value=True))
+    def test_get__move(self):
+        runner = CliRunner()
+        result = runner.invoke(get, ['--debug', 'file_name'])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(remote.RemoteLogger, 'list_log', MagicMock(return_value=[]))
     def test_ls__empty(self):
         runner = CliRunner()
         result = runner.invoke(ls)
         self.assertEqual(result.output, '')
         self.assertEqual(result.exit_code, 0)
 
+    @patch.object(remote.RemoteLogger, 'clear_log', MagicMock())
     def test_clear(self):
         runner = CliRunner()
         result = runner.invoke(clear)
@@ -146,7 +154,7 @@ class TestCli(TestCase):
     @patch.object(click, 'prompt', MagicMock(return_value=""))
     @patch.object(params.LogParam, 'write_ini', MagicMock(return_value="setting_file"))
     @patch.object(params.LogParam, 'read_ini', MagicMock(return_value=False))
-    @patch.object(auto.AutoLogger, 'get', MagicMock(return_value=True))
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=True))
     def test_get__init(self):
         runner = CliRunner()
         result = runner.invoke(get)

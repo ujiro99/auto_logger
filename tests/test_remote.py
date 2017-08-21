@@ -22,11 +22,19 @@ class TestRemoteLogger(TestCase):
         p.log_extension = 'tar.gz'
         p.remote_log_dir = '/root'
         p.remote_dist_dir = '/mnt/log'
-        remote_logger = remote.RemoteLogger(p)
-        ret = remote_logger.get_log()
+        p.local_src_dir = '.'
+        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+        if not os.path.exists(p.local_dist_dir):
+            os.mkdir(p.local_dist_dir)
+
+        l = remote.RemoteLogger(p)
+        ret = l.get_log()
+
         self.assertTrue(ret)
-        self.assertTrue(os.path.exists(os.path.join('.', remote_logger.filename)))
-        os.remove(os.path.join('.', remote_logger.filename))
+        is_exists = os.path.exists(os.path.join(p.local_dist_dir, l.filename))
+        self.assertTrue(is_exists)
+        shutil.rmtree(p.local_dist_dir)
+
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
     def test_get_log_timeout(self):
@@ -51,8 +59,10 @@ class TestRemoteLogger(TestCase):
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):
+        os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
+        os.chdir("..")
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
 
@@ -64,9 +74,7 @@ class TestRemoteLogger(TestCase):
             os.mkdir(p.local_dist_dir)
 
         # exec
-        remote_logger = remote.RemoteLogger(p)
-        remote_logger.filename = filename
-        ret = remote_logger.move_log()
+        ret = remote.RemoteLogger(p).move_log(filename)
         self.assertTrue(ret)
 
         is_exists = os.path.exists(os.path.join(p.local_dist_dir, filename))
@@ -75,18 +83,19 @@ class TestRemoteLogger(TestCase):
 
     @patch.object(watch, 'file', MagicMock(return_value=False))
     def test_move_log__timeout(self):
+        os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
+        os.chdir("..")
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
         remote.RemoteLogger.TIMEOUT_MOVE = 1
 
-        remote_logger = remote.RemoteLogger(p)
-        remote_logger.filename = "testdata"
-        ret = remote_logger.move_log()
+        filename = "testdata"
+        ret = remote.RemoteLogger(p).move_log("testdata")
 
         self.assertFalse(ret)
-        is_exists = os.path.exists(os.path.join(p.local_dist_dir, remote_logger.filename))
+        is_exists = os.path.exists(os.path.join(p.local_dist_dir, filename))
         self.assertFalse(is_exists)
 
     def test_list_log(self):

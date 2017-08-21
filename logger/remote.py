@@ -30,8 +30,8 @@ class RemoteLogger:
     def get_log(self):
         """
         Get remote log using shell command.
-        :return Result of logging. success: True, failed: False
-        :rtype bool
+        :return: Result of getting remote log. True: success | False: fail
+        :rtype: bool
         """
         self.__connect()
 
@@ -62,32 +62,22 @@ class RemoteLogger:
         self.filename = created.pop()
         log.i("- created: " + self.filename)
 
-        # mv log file to local machine
-        log.i("- move file to %s" % self.params.remote_dist_dir)
-        self.__send("mv %s %s" % (self.filename, self.params.remote_dist_dir))
-
+        ret = self.__move_file()
         self.__disconnect()
-        return True
+        return ret
 
-    def move_log(self):
+    def move_log(self, file_name):
         """
-        Move log file
+        Move specified file to remote_dist_dir.
+        :param str file_name: File name to be moved.
         :return Result fo move. success: True, failed: False.
         :rtype bool
         """
-        is_created = watch.file(self.params.local_src_dir,
-                                self.filename,
-                                RemoteLogger.TIMEOUT_MOVE)
-
-        log_path = os.path.join(self.params.local_src_dir, self.filename)
-        if not is_created:
-            log.w("- not found: %s" % log_path)
-            return False
-
-        shutil.move(log_path, self.params.local_dist_dir)
-        log.i("- moved: %s" % self.params.local_dist_dir)
-
-        return True
+        self.filename = file_name
+        self.__connect()
+        ret = self.__move_file()
+        self.__disconnect()
+        return ret
 
     def list_log(self):
         """
@@ -177,3 +167,27 @@ class RemoteLogger:
         self.__send("rm " + tmp_file)
         log.d(ls)
         return ls
+
+    def __move_file(self):
+        """
+        Move file to remote_dist_dir.
+        :return Result fo move. success: True, failed: False.
+        :rtype bool
+        """
+        # mv log file to local machine
+        log.i("- move file to %s" % self.params.remote_dist_dir)
+        self.__send("mv %s %s" % (self.filename, self.params.remote_dist_dir))
+
+        is_created = watch.file(self.params.local_src_dir,
+                                self.filename,
+                                RemoteLogger.TIMEOUT_MOVE)
+
+        log_path = os.path.join(self.params.local_src_dir, self.filename)
+        if not is_created:
+            log.w("- not found: %s" % log_path)
+            return False
+
+        shutil.move(log_path, self.params.local_dist_dir)
+        log.i("- moved: %s" % self.params.local_dist_dir)
+
+        return True
