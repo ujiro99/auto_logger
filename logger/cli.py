@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 import click
 
-from logger import auto, params, log, remote
+from logger import auto, params, log, remote, convert as conv
 
 # messages.
 PROMPT_SHELL_CMD = "- remote shell command"
@@ -189,6 +190,30 @@ def clear(ctx: click.core.Context, debug: bool):
 
     try:
         remote.RemoteLogger(p).clear_log()
+
+    except IOError as e:
+        click.echo(e.args)
+    except Exception as e:
+        click.echo(e.args)
+
+
+@cmd.command()
+@click.argument('file-path', type=click.Path(exists=True))
+@click.argument('script-path', type=click.Path(exists=True))
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def convert(file_path: str, script_path: str, debug: bool):
+    """
+    指定されたログファイルを変換ルールに従って変換します。
+    """
+    if debug:
+        log.set_level(log.Level.DEBUG)
+
+    p = conv.ConvertParams()
+    p.log_path = file_path
+    p.script_path = script_path
+
+    try:
+        conv.Converter(p).exec()
 
     except IOError as e:
         click.echo(e.args)
