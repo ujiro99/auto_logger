@@ -35,10 +35,10 @@ class TestRemoteLogger(TestCase):
         self.assertTrue(is_exists)
         shutil.rmtree(p.local_dist_dir)
 
-
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
     def test_get_log_timeout(self):
         params = logger.params.LogParam()
+        params.log_extension = "tar.gz"
         remote_logger = remote.RemoteLogger(params)
         remote.RemoteLogger.TIMEOUT_LOGGING = 0.5
 
@@ -63,6 +63,7 @@ class TestRemoteLogger(TestCase):
         p = logger.params.LogParam()
         p.read_ini()
         os.chdir("..")
+        p.remote_log_dir = "/mnt/log"
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
 
@@ -81,22 +82,63 @@ class TestRemoteLogger(TestCase):
         self.assertTrue(is_exists)
         shutil.rmtree(p.local_dist_dir)
 
-    @patch.object(watch, 'file', MagicMock(return_value=False))
-    def test_move_log__timeout(self):
+    @patch.object(watch, 'file', MagicMock(return_value=True))
+    def test_move_log_glob(self):
         os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
         os.chdir("..")
+        p.remote_log_dir = "/mnt/log"
+        p.local_src_dir = os.getcwd()
+        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+
+        # create src file, and dist directory
+        filename = "testdata"
+        f = open(os.path.join(os.getcwd(), filename + '1'), "w")
+        f.close()
+        f = open(os.path.join(os.getcwd(), filename + '2'), "w")
+        f.close()
+        if not os.path.exists(p.local_dist_dir):
+            os.mkdir(p.local_dist_dir)
+
+        # exec
+        ret = remote.RemoteLogger(p).move_log(filename + '*')
+        self.assertTrue(ret)
+        self.assertTrue(os.path.exists(os.path.join(p.local_dist_dir, filename + '1')))
+        self.assertTrue(os.path.exists(os.path.join(p.local_dist_dir, filename + '2')))
+        shutil.rmtree(p.local_dist_dir)
+
+    def test_move_log__not_found(self):
+        os.chdir("tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        os.chdir("..")
+        p.remote_log_dir = "/mnt/log"
         p.local_src_dir = os.getcwd()
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
         remote.RemoteLogger.TIMEOUT_MOVE = 1
 
         filename = "testdata"
-        ret = remote.RemoteLogger(p).move_log("testdata")
+        r = remote.RemoteLogger(p)
+        ret = r.move_log(filename)
 
         self.assertFalse(ret)
-        is_exists = os.path.exists(os.path.join(p.local_dist_dir, filename))
-        self.assertFalse(is_exists)
+
+    @patch.object(watch, 'file', MagicMock(return_value=False))
+    def test_move_log__move_failed(self):
+        p = logger.params.LogParam()
+        p.read_ini()
+
+        r = remote.RemoteLogger(p)
+        r._RemoteLogger__connect = MagicMock()
+        r._RemoteLogger__disconnect = MagicMock()
+        r._RemoteLogger__get_file_list = MagicMock(return_value=['test'])
+        r._RemoteLogger__send = MagicMock()
+
+        filename = "testdata"
+        ret = r.move_log(filename)
+
+        self.assertFalse(ret)
 
     def test_list_log(self):
         files = ["1.tar.gz", "2.tar.gz"]

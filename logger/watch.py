@@ -12,21 +12,22 @@ from logger import log
 
 
 class ChangeHandler(PatternMatchingEventHandler):
-    def __init__(self, dir: str, filename: str):
+    def __init__(self, dir: str, filename: str, is_glob: bool):
         ext = os.path.splitext(filename)[1]
         super(ChangeHandler, self).__init__(patterns=["*%s" % ext])
         self.file_path = os.path.join(dir, filename)  # type: str
         self.modified = False  # type: bool
+        self.is_glob = is_glob
 
     def on_created(self, event: watchdog.events.FileCreatedEvent):
         log.d("  on_created %s" % event.src_path)
-        if event.src_path != self.file_path:
+        if self.is_glob or event.src_path != self.file_path:
             return
         self.modified = True
 
     def on_modified(self, event: watchdog.events.FileModifiedEvent):
         log.d("  on_modified %s" % event.src_path)
-        if event.src_path != self.file_path:
+        if self.is_glob or event.src_path != self.file_path:
             return
         self.modified = True
 
@@ -40,7 +41,8 @@ def file(dirname, filename, timeout):
     :return: Is created the file.
     :rtype bool
     """
-    handler = ChangeHandler(dirname, filename)
+    is_glob = filename.find('*') >= 0
+    handler = ChangeHandler(dirname, filename, is_glob)
     observer = Observer()
     observer.schedule(handler, dirname, recursive=False)
     observer.start()
@@ -61,14 +63,14 @@ def file(dirname, filename, timeout):
     except KeyboardInterrupt:
         observer.stop()
 
-    is_exists = os.path.exists(os.path.join(dirname, filename))
-
-    if is_exists:
-        if timeout <= 0:
-            log.w("- The file still updating.")
-    else:
-        log.i("- time out")
-        return False
+    if not is_glob:
+        is_exists = os.path.exists(os.path.join(dirname, filename))
+        if is_exists:
+            if timeout <= 0:
+                log.w("- The file still updating.")
+        else:
+            log.i("- time out")
+            return False
 
     observer.stop()
     observer.join(timeout)

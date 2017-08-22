@@ -74,7 +74,7 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
 def get(ctx: click.core.Context, filename: str, debug: bool):
     """
-    filenameに指定したファイルを取得します。省略した場合は新たに取得します。
+    引数に指定したファイルを取得します。省略した場合は新たに取得します。
     """
     # for debug
     if debug:
@@ -176,6 +176,8 @@ def ls(ctx: click.core.Context, debug: bool):
 def clear(ctx: click.core.Context, debug: bool):
     """
     Remoteに保存されたログファイルをすべて削除します。
+
+    \b
     ※注意: 削除時の確認はしません。削除したファイルの復元はできません。
     """
     if debug:
