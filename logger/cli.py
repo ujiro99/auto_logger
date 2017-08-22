@@ -157,6 +157,8 @@ def ls(ctx: click.core.Context, debug: bool):
     """
     if debug:
         log.set_level(log.Level.DEBUG)
+    else:
+        log.set_level(log.Level.WARN)
 
     p = __get_params(ctx)
 
