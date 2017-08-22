@@ -185,6 +185,8 @@ def clear(ctx: click.core.Context, debug: bool):
     """
     if debug:
         log.set_level(log.Level.DEBUG)
+    else:
+        log.set_level(log.Level.WARN)
 
     p = __get_params(ctx)
 
@@ -195,6 +197,8 @@ def clear(ctx: click.core.Context, debug: bool):
         click.echo(e.args)
     except Exception as e:
         click.echo(e.args)
+
+    click.echo("%s のログを削除しました。" % p.remote_log_dir)
 
 
 @cmd.command()
