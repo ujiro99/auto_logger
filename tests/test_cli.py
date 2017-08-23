@@ -96,7 +96,8 @@ class TestCli(TestCase):
             '--log-extension', 'tar.gz',
             '--remote-log-dir', '/home/user/log',
             '--remote-dist-dir', '/home/user/log_dist',
-            '--local-src-dir', '/home/user/log_src']
+            '--local-src-dir', '/home/user/log_src',
+            '--convert-rule', '/home/user/rule.csv']
         runner = CliRunner()
         result = runner.invoke(init, args)
         self.assertEqual(result.exit_code, 0)
@@ -195,6 +196,7 @@ class TestCli(TestCase):
             'remote_log_dir':  '/root',
             'remote_dist_dir': '/mnt/log',
             'local_src_dir':   '../',
+            'convert_rule':    'tests/rule.csv',
         }
         file_path = os.path.join(os.getcwd(), '.tmp', LogParam.FILE_NAME)
         with open(file_path, 'w') as file:

@@ -15,6 +15,7 @@ PROMPT_LOG_EXTENSION = "- log extension"
 PROMPT_REMOTE_LOG_DIR = "- remote log dir"
 PROMPT_REMOTE_DIST_DIR = "- remote dist dir"
 PROMPT_LOCAL_SRC_DIR = "- local src dir"
+PROMPT_CONVERT_RULE = "- convert rule file"
 
 
 @click.group(invoke_without_command=True)
@@ -111,8 +112,9 @@ def get(ctx: click.core.Context, filename: str, debug: bool):
 @click.option('--remote-log-dir', prompt=PROMPT_REMOTE_LOG_DIR, help='remote接続先でログが保存されるディレクトリ絶対パス')
 @click.option('--remote-dist-dir', prompt=PROMPT_REMOTE_DIST_DIR, help='remote接続先でログを一時保存するディレクトリ絶対パス')
 @click.option('--local-src-dir', prompt=PROMPT_LOCAL_SRC_DIR, help='remoteからlocalへログを一時保存するディレクトリ絶対パス')
+@click.option('--convert-rule', prompt=PROMPT_CONVERT_RULE, help='ログの変換ルールファイルのパス')
 def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remote_log_dir: str, remote_dist_dir: str,
-         local_src_dir: str) -> object:
+         local_src_dir: str, convert_rule: str):
     """
     ログ取得に使用するパラメータを設定します。
     設定値は ~/plog.ini に保存されます。
@@ -133,6 +135,8 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
         remote_dist_dir = click.prompt(PROMPT_REMOTE_DIST_DIR, type=str)
     if local_src_dir is None:
         local_src_dir = click.prompt(PROMPT_LOCAL_SRC_DIR, type=str)
+    if convert_rule is None:
+        convert_rule = click.prompt(PROMPT_CONVERT_RULE, type=str)
 
     # Set input values to param.
     p = params.LogParam()
@@ -143,6 +147,7 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
     p.remote_dist_dir = remote_dist_dir
     p.local_src_dir = local_src_dir
     p.log_extension = log_extension
+    p.convert_rule = convert_rule
 
     # Write to ~/prog.ini
     path = p.write_ini()

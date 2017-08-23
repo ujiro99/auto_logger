@@ -7,7 +7,7 @@ import time
 
 import pexpect
 
-from logger import remote
+from logger import remote, convert
 
 
 class AutoLogger:
@@ -99,5 +99,13 @@ class AutoLogger:
 
         # get remote log
         remote_logger = remote.RemoteLogger(self.params)
-        return remote_logger.get_log()
+        ret = remote_logger.get_log()
+        if not ret: return False
 
+        # convert log
+        p = convert.ConvertParams()
+        p.script_path = self.params.convert_rule
+        p.log_path = os.path.join(self.params.local_dist_dir, remote_logger.filename)
+        ret = convert.Converter(p).exec()
+
+        return ret

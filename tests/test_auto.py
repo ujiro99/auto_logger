@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 import pexpect
 
 import logger.params
-from logger import auto, remote
+from logger import auto, remote, convert
 
 
 class TestAutoLogger(TestCase):
@@ -22,6 +22,7 @@ class TestAutoLogger(TestCase):
     p.remote_dist_dir = ""
     p.local_src_dir = ""
     p.local_dist_dir = ""
+    p.convert_rule = "./tests/rule.csv"
 
     def test_generate_date_str(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
@@ -84,16 +85,16 @@ class TestAutoLogger(TestCase):
         self.assertFalse(is_exists)
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
-    def _start_script_cmd(self):
+    def test_start_script_cmd(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
         ret = a.start_script_cmd()
         self.assertTrue(ret)
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock()))
     @patch.object(remote, 'RemoteLogger', MagicMock())
+    @patch.object(convert, 'Converter', MagicMock())
     def test_start(self):
         a = auto.AutoLogger(TestAutoLogger.p, TestAutoLogger.test_number)
         ret = a.start()
         self.assertTrue(ret)
         shutil.rmtree(os.path.join(os.getcwd(), TestAutoLogger.test_number))
-
