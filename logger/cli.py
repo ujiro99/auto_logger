@@ -202,10 +202,10 @@ def clear(ctx: click.core.Context, debug: bool):
 
 
 @cmd.command()
-@click.argument('file-path', type=click.Path(exists=True))
 @click.argument('script-path', type=click.Path(exists=True))
+@click.argument('file-path', type=click.Path(exists=True))
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def convert(file_path: str, script_path: str, debug: bool):
+def convert(script_path: str, file_path: str, debug: bool):
     """
     指定されたログファイルを変換ルールに従って変換します。
     """
@@ -213,16 +213,22 @@ def convert(file_path: str, script_path: str, debug: bool):
         log.set_level(log.Level.DEBUG)
 
     p = conv.ConvertParams()
-    p.log_path = file_path
     p.script_path = script_path
+    p.log_path = file_path
 
     try:
-        conv.Converter(p).exec()
+        ret = conv.Converter(p).exec()
 
     except IOError as e:
         click.echo(e.args)
     except Exception as e:
         click.echo(e.args)
+
+    # finished
+    if ret:
+        click.echo("正常に終了しました。")
+    else:
+        click.echo("失敗しました。")
 
 
 def main():

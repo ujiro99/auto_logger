@@ -1,3 +1,0 @@
-s/Initialize()/★Initialize()/g
-s/[DEBUG]/[INFO]/g
-/mnt\/src/ s/$/♥\n/

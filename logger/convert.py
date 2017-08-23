@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import subprocess
+import tempfile
+
+import pandas as pd
 
 from logger import log
 
@@ -15,6 +19,7 @@ class ConvertParams:
 
 class Converter:
     DIR_SUFFIX = ".conv"
+    SED_ADD_FMT = "/%s/ s/$/%s/\n"
 
     def __init__(self, params: ConvertParams):
         self.__p = params
@@ -22,11 +27,38 @@ class Converter:
 
     def exec(self):
         """
-        Execute conversion using `sed` command.
+        Execute conversion.
         """
-        self.__un_tar()
-        for d, f in self.__files(self.__tar_dir):
+        if not self.__is_files_exists():
+            return False
 
+        self.__un_tar()
+        sc = self.__csv_to_sed_script()
+        self.__exec_convert(sc)
+        os.unlink(sc) # remote temp file
+
+        return True
+
+    def __is_files_exists(self):
+        """
+        Checks required files exists.
+        :return: True: All file exists. False: Not exists.
+        :rtype bool
+        """
+        if not os.path.exists(self.__p.log_path):
+            log.w("- not found: %s" % self.__p.log_path)
+            return False
+        if not os.path.exists(self.__p.script_path):
+            log.w("- not found: %s" % self.__p.script_path)
+            return False
+        return True
+
+    def __exec_convert(self, script_path):
+        """
+        Execute conversion using `sed` command.
+        :param script_path: Script file path, which will be used by `sed` command.
+        """
+        for d, f in self.__files():
             # create output directory.
             dist = os.path.join(self.__tar_dir + Converter.DIR_SUFFIX, d)
             if not os.path.exists(dist):
@@ -35,8 +67,8 @@ class Converter:
             # execute conversion
             src_path = os.path.join(self.__tar_dir, d, f)
             dist_path = os.path.join(dist, f)
-            log.i("convert: %s" % dist_path)
-            self.__call("cat %s | sed -f %s > %s" % (src_path, self.__p.script_path, dist_path))
+            log.i("- convert: %s" % dist_path)
+            self.__call("cat %s | sed -r -f %s > %s" % (src_path, script_path, dist_path))
 
     def __un_tar(self):
         """
@@ -54,16 +86,23 @@ class Converter:
         :return: Return code of the command.
         :rtype int
         """
-        log.d(cmd)
+        log.d(" > %s" % cmd)
         return subprocess.call(cmd, shell=True)
 
-    def __files(self, dir_name):
+    def __files(self):
         """
         Find files.
-        :param str dir_name: Target directory name.
         :return: Iterator[str]
         """
-        for root, dirs, files in os.walk(dir_name):
-            d = root.lstrip(dir_name).lstrip('/')
+        for root, dirs, files in os.walk(self.__tar_dir):
+            d = root.lstrip(self.__tar_dir).lstrip('/')
             for file in files:
                 yield (d, file)
+
+    def __csv_to_sed_script(self):
+        df = pd.read_csv(self.__p.script_path,  names=('addr','cmd'))  # type: pandas.core.frame.DataFrame
+        addr = df.addr.apply(lambda x: re.escape(x))
+        with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as tf:
+            for i, v in df.iterrows():
+                tf.write(Converter.SED_ADD_FMT % (addr[i], v[1]))
+        return tf.name

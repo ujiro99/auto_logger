@@ -2,3 +2,4 @@ click
 pexpect
 watchdog
 scripttest
+pandas
