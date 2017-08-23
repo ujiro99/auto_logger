@@ -56,7 +56,7 @@ class Converter:
     def __exec_convert(self, script_path):
         """
         Execute conversion using `sed` command.
-        :param script_path: Script file path, which will be used by `sed` command.
+        :param str script_path: Script file path, which will be used by `sed` command.
         """
         for d, f in self.__files():
             # create output directory.
@@ -100,9 +100,14 @@ class Converter:
                 yield (d, file)
 
     def __csv_to_sed_script(self):
+        """
+        Generate sed script from csv file.
+        :return: File path name.
+        :rtype str
+        """
         df = pd.read_csv(self.__p.script_path, names=('addr', 'cmd'))  # type: pandas.core.frame.DataFrame
         addr = df.addr.apply(lambda x: re.escape(x))
         with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as tf:
-            for i, v in df.iterrows():
-                tf.write(Converter.SED_ADD_FMT % (addr[i], v[1]))
+            for i, r in df.iterrows():
+                tf.write(Converter.SED_ADD_FMT % (addr[i], r[1]))
         return tf.name

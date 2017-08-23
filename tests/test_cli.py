@@ -11,8 +11,8 @@ import click
 from click.testing import CliRunner
 from scripttest import TestFileEnvironment
 
-from logger import auto, remote, cli, params
-from logger.cli import cmd, start, get, main, init, ls, clear
+from logger import auto, remote, cli, params, convert as conv
+from logger.cli import cmd, start, get, main, init, ls, clear, convert
 from logger.params import LogParam
 
 
@@ -160,6 +160,24 @@ class TestCli(TestCase):
         result = runner.invoke(get)
         self.assertEqual(result.exit_code, 0)
         self.assertRegex(result.output, '設定保存完了: setting_file.*')
+
+    @patch.object(conv.Converter, 'exec', MagicMock(return_value=True))
+    def test_convert(self):
+        runner = CliRunner()
+        result = runner.invoke(convert, ["./tests/rule.csv", "./tests/test.tar.gz"])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
+    def test_convert__fail(self):
+        runner = CliRunner()
+        result = runner.invoke(convert, ["--debug", "./tests/rule.csv", "./tests/test.tar.gz"])
+        self.assertEqual(result.exit_code, 0)
+
+    @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
+    def test_convert__file_not_exists(self):
+        runner = CliRunner()
+        result = runner.invoke(convert, ["--debug", "./rule.csv", "./tests/test.tar.gz"])
+        self.assertEqual(result.exit_code, 2)
 
     @patch.object(cli, 'cmd', MagicMock(return_value=True))
     def test_main(self):
