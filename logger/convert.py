@@ -35,7 +35,7 @@ class Converter:
         self.__un_tar()
         sc = self.__csv_to_sed_script()
         self.__exec_convert(sc)
-        os.unlink(sc) # remote temp file
+        os.unlink(sc)  # remote temp file
 
         return True
 
@@ -100,7 +100,7 @@ class Converter:
                 yield (d, file)
 
     def __csv_to_sed_script(self):
-        df = pd.read_csv(self.__p.script_path,  names=('addr','cmd'))  # type: pandas.core.frame.DataFrame
+        df = pd.read_csv(self.__p.script_path, names=('addr', 'cmd'))  # type: pandas.core.frame.DataFrame
         addr = df.addr.apply(lambda x: re.escape(x))
         with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as tf:
             for i, v in df.iterrows():
