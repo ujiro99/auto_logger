@@ -15,6 +15,7 @@ class ConvertParams:
     def __init__(self):
         self.log_path = None  # type: str
         self.script_path = None  # type: str
+        self.file = None  # type: str
 
 
 class Converter:
@@ -32,9 +33,12 @@ class Converter:
         if not self.__is_files_exists():
             return False
 
-        self.__un_tar()
         sc = self.__csv_to_sed_script()
-        self.__exec_convert(sc)
+        if self.__p.file is None:
+            self.__un_tar()
+            self.__exec_convert_tar(sc)
+        else:
+            self.__exec_convert(sc)
         os.unlink(sc)  # remote temp file
 
         return True
@@ -45,15 +49,30 @@ class Converter:
         :return: True: All file exists. False: Not exists.
         :rtype bool
         """
-        if not os.path.exists(self.__p.log_path):
+        if (not self.__p.log_path is None) and (not os.path.exists(self.__p.log_path)):
             log.w("- not found: %s" % self.__p.log_path)
+            return False
+        if (not self.__p.file is None) and (not os.path.exists(self.__p.file)):
+            log.w("- not found: %s" % self.__p.file)
             return False
         if not os.path.exists(self.__p.script_path):
             log.w("- not found: %s" % self.__p.script_path)
             return False
+
         return True
 
     def __exec_convert(self, script_path):
+        """
+        Execute conversion using `sed` command.
+        :param str script_path: Script file path, which will be used by `sed` command.
+        """
+        # execute conversion
+        f = os.path.splitext(self.__p.file)
+        dist_path = f[0] + Converter.DIR_SUFFIX + f[1]
+        log.i("- convert: %s" % dist_path)
+        self.__call("cat %s | sed -r -f %s > %s" % (self.__p.file, script_path, dist_path))
+
+    def __exec_convert_tar(self, script_path):
         """
         Execute conversion using `sed` command.
         :param str script_path: Script file path, which will be used by `sed` command.

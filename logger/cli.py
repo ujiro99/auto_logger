@@ -208,9 +208,10 @@ def clear(ctx: click.core.Context, debug: bool):
 
 @cmd.command()
 @click.argument('script-path', type=click.Path(exists=True))
-@click.argument('file-path', type=click.Path(exists=True))
+@click.argument('tar-file', type=click.Path(exists=True), required=False)
+@click.option('-f', '--file', type=click.Path(exists=True), help='変換対象のログファイル')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def convert(script_path: str, file_path: str, debug: bool):
+def convert(script_path: str, tar_file: str, file: str, debug: bool):
     """
     指定されたログファイルを変換ルールに従って変換します。
     """
@@ -219,7 +220,8 @@ def convert(script_path: str, file_path: str, debug: bool):
 
     p = conv.ConvertParams()
     p.script_path = script_path
-    p.log_path = file_path
+    p.log_path = tar_file
+    p.file = file
 
     try:
         ret = conv.Converter(p).exec()

@@ -31,3 +31,15 @@ class TestConverter(TestCase):
 
         ret = convert.Converter(p).exec()
         self.assertFalse(ret)
+
+    def test_exec__file(self):
+        p = convert.ConvertParams()
+        p.script_path = "./tests/rule.csv"
+        p.file = "./tests/test.log"
+
+        ret = convert.Converter(p).exec()
+        self.assertTrue(ret)
+        with open("./tests/test.conv.log", 'r') as f:
+            for line in f.readlines():
+                self.assertIsNotNone(re.match(".*★$", line))
+        os.remove(os.path.join(os.getcwd(), "./tests/test.conv.log"))
