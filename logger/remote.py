@@ -33,24 +33,9 @@ class RemoteLogger:
         :return Result of logging. success: True, failed: False
         :rtype bool
         """
-        # launch shell
-        log.i("- launch %s@%s" % (self.params.shell, self.params.host_name))
-        self.p = p = pexpect.spawn("%s %s" % (self.params.shell, self.params.host_name))
-        # self.p = p = pexpect.spawn("bash") # for develop
-
-        log.d("- check is required to add known hosts.")
-        p.expect([r"yes", r"[#$%>]"])
-        log.d(p.before)
-        log.d(p.after)
-        if p.after == b'yes':
-            log.d("-- required.")
-            self.__send('yes')
+        self.__connect()
 
         log.d("- prepare logging")
-        p.timeout = RemoteLogger.TIMEOUT_EXPECT
-        self.__send("PS1='#'")
-        self.__send("cd %s" % self.params.remote_log_dir)
-        self.__send("touch %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
 
         # check current files.
         before = self.__get_file_set()
@@ -71,7 +56,6 @@ class RemoteLogger:
             if len(created) != 0:
                 break
 
-        self.__send("rm %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
         if timeout <= 0:
             log.w("- time out to logging.")
             return False  # Failed to logging
@@ -83,10 +67,30 @@ class RemoteLogger:
         self.__send("mv %s %s" % (self.filename, self.params.remote_dist_dir))
 
         # terminate
-        p.terminate()
-        p.expect(pexpect.EOF)
+        self.p.terminate()
+        self.p.expect(pexpect.EOF)
 
         return True
+
+    def __connect(self):
+        """
+        Connect to remote shell.
+        """
+        # launch shell
+        log.i("- launch %s to %s" % (self.params.shell, self.params.host_name))
+        self.p = p = pexpect.spawn("%s %s" % (self.params.shell, self.params.host_name))
+        # self.p = p = pexpect.spawn("bash") # for develop
+
+        log.d("- check is required to add known hosts.")
+        p.expect([r"yes", r"[#$%>]"])
+        log.d(p.before)
+        log.d(p.after)
+        if p.after == b'yes':
+            log.d("-- required.")
+            self.__send('yes')
+        p.timeout = RemoteLogger.TIMEOUT_EXPECT
+        self.__send("PS1='#'")
+        self.__send("cd %s" % self.params.remote_log_dir)
 
     def __send(self, cmd):
         """
@@ -108,13 +112,24 @@ class RemoteLogger:
         :return: File set.
         :rtype set
         """
+        return set(self.__get_file_list())
+
+    def __get_file_list(self):
+        """
+        Get current directory's file list
+        :return: File list.
+        :rtype list
+        """
+        self.__send("touch %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
         self.p.sendline("ls *.%s -1 --color=no" % self.params.log_extension)
         self.p.expect("no(.*)" + RemoteLogger.PROMPT)
+
         ls = self.p.match.groups()[0].decode("utf-8")  # type: str
-        f = lambda x: bool(re.match('\S+', x))
-        ret = set(filter(f, ls.splitlines()))
-        log.d(ret)
-        return ret
+        ls = filter(lambda x: bool(re.match('\S+', x)), ls.splitlines())
+
+        self.__send("rm %s.%s" % (RemoteLogger.TMP_FILE, self.params.log_extension))
+        log.d(ls)
+        return ls
 
     def move_log(self):
         """
