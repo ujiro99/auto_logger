@@ -165,6 +165,28 @@ def ls(ctx: click.core.Context, debug: bool):
         click.echo(e.args)
 
 
+@cmd.command()
+@click.pass_context
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def clear(ctx: click.core.Context, debug: bool):
+    """
+    Remoteに保存されたログファイルをすべて削除します。
+    ※注意: 削除時の確認はしません。削除したファイルの復元はできません。
+    """
+    if debug:
+        log.set_level(log.Level.DEBUG)
+
+    p = __get_params(ctx)
+
+    try:
+        remote.RemoteLogger(p).clear_log()
+
+    except IOError as e:
+        click.echo(e.args)
+    except Exception as e:
+        click.echo(e.args)
+
+
 def main():
     cmd(auto_envvar_prefix='MRN')
 

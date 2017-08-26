@@ -100,6 +100,15 @@ class RemoteLogger:
         self.__disconnect()
         return ls
 
+    def clear_log(self):
+        """
+        Remove all remote log files.
+        """
+        self.__connect()
+        self.__send("rm *.%s" % self.params.log_extension)
+        time.sleep(0.1)
+        self.__disconnect()
+
     def __connect(self):
         """
         Connect to remote shell.

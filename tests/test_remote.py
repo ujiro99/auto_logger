@@ -106,3 +106,20 @@ class TestRemoteLogger(TestCase):
         os.chdir("..")
         for f in files:
             os.remove(f)
+
+    def test_clear_log(self):
+        files = ["3.tar.gz", "4.tar.gz"]
+        for f in files:
+            with open(f, "w") as fd:
+                fd.write("")
+
+        os.chdir("./tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        p.remote_log_dir = "/mnt/log"
+
+        remote.RemoteLogger(p).clear_log()
+
+        os.chdir("..")
+        for f in files:
+            self.assertFalse(os.path.exists(f))

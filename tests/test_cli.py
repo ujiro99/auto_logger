@@ -12,7 +12,7 @@ from click.testing import CliRunner
 from scripttest import TestFileEnvironment
 
 from logger import auto, cli, params
-from logger.cli import cmd, start, get, main, init, ls
+from logger.cli import cmd, start, get, main, init, ls, clear
 from logger.params import LogParam
 
 
@@ -136,6 +136,11 @@ class TestCli(TestCase):
         runner = CliRunner()
         result = runner.invoke(ls)
         self.assertEqual(result.output, '')
+        self.assertEqual(result.exit_code, 0)
+
+    def test_clear(self):
+        runner = CliRunner()
+        result = runner.invoke(clear)
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(click, 'prompt', MagicMock(return_value=""))
