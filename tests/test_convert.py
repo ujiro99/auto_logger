@@ -42,4 +42,5 @@ class TestConverter(TestCase):
         with open("./tests/test.conv.log", 'r') as f:
             for line in f.readlines():
                 self.assertIsNotNone(re.match(".*★$", line))
+                print(line)
         os.remove(os.path.join(os.getcwd(), "./tests/test.conv.log"))
