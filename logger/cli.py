@@ -207,19 +207,30 @@ def clear(ctx: click.core.Context, debug: bool):
 
 
 @cmd.command()
-@click.argument('script-path', type=click.Path(exists=True))
+@click.pass_context
 @click.argument('tar-file', type=click.Path(exists=True), required=False)
+@click.option('-s', '--script-path', type=click.Path(exists=True), help='変換ルールを記載したパス。デフォルト値は設定ファイルの convert_rule')
 @click.option('-f', '--file', type=click.Path(exists=True), help='変換対象のログファイル')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def convert(script_path: str, tar_file: str, file: str, debug: bool):
+def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str, debug: bool):
     """
-    指定されたログファイルを変換ルールに従って変換します。
+    指定されたtarファイルを展開し、変換ルールに従って変換します。
     """
     if debug:
         log.set_level(log.Level.DEBUG)
 
+    if not script_path is None:
+        s = script_path
+    else:
+        conf = __get_params(ctx)
+        if not (conf.convert_rule is None) and not os.path.exists(conf.convert_rule):
+            click.echo("convert_rule \"%s\" が存在しません。" % conf.convert_rule)
+            ctx.exit(-1)
+        else:
+            s = conf.convert_rule
+
     p = conv.ConvertParams()
-    p.script_path = script_path
+    p.script_path = s
     p.log_path = tar_file
     p.file = file
 

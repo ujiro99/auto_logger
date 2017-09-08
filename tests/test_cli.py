@@ -165,35 +165,35 @@ class TestCli(TestCase):
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=True))
     def test_convert(self):
         runner = CliRunner()
-        result = runner.invoke(convert, ["./tests/rule.csv", "./tests/test.tar.gz"])
+        result = runner.invoke(convert, ["-s", "./tests/rule.csv", "./tests/test.tar.gz"])
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__fail(self):
         runner = CliRunner()
-        result = runner.invoke(convert, ["--debug", "./tests/rule.csv", "./tests/test.tar.gz"])
+        result = runner.invoke(convert, ["--debug", "-s", "./tests/rule.csv", "./tests/test.tar.gz"])
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__file_1(self):
-        result = CliRunner().invoke(convert, ["--debug", "./tests/rule.csv", "-f", "./tests/test.log"])
+        result = CliRunner().invoke(convert, ["--debug", "-s", "./tests/rule.csv", "-f", "./tests/test.log"])
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__file_2(self):
-        result = CliRunner().invoke(convert, ["--debug", "-f", "./tests/test.log", "./tests/rule.csv"])
+        result = CliRunner().invoke(convert, ["--debug", "-f", "./tests/test.log", "-s", "./tests/rule.csv"])
         self.assertEqual(result.exit_code, 0)
 
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__file_not_exists(self):
         runner = CliRunner()
-        result = runner.invoke(convert, ["--debug", "./tests/rule.csv", "./test.tar.gz"])
+        result = runner.invoke(convert, ["--debug", "-s", "./tests/rule.csv", "./test.tar.gz"])
         self.assertEqual(result.exit_code, 2)
 
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__rule_not_exists(self):
         runner = CliRunner()
-        result = runner.invoke(convert, ["--debug", "./rule.csv", "./tests/test.tar.gz"])
+        result = runner.invoke(convert, ["--debug", "-s", "./rule.csv", "./tests/test.tar.gz"])
         self.assertEqual(result.exit_code, 2)
 
     @patch.object(cli, 'cmd', MagicMock(return_value=True))
