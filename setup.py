@@ -6,7 +6,7 @@ setup(
     author='Yujiro Takeda',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['click', 'pexpect', 'watchdog', 'pandas'],
+    install_requires=['click', 'pexpect', 'watchdog', 'pandas', 'tqdm'],
     entry_points={
         "console_scripts": [
             "mlog=logger.cli:main",

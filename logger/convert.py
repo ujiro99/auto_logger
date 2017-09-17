@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import tempfile
+from tqdm import tqdm
 
 import pandas as pd
 
@@ -77,7 +78,7 @@ class Converter:
         Execute conversion using `sed` command.
         :param str script_path: Script file path, which will be used by `sed` command.
         """
-        for d, f in self.__files():
+        for d, f in tqdm(list(self.__files())):
             # create output directory.
             dist = os.path.join(self.__tar_dir + Converter.DIR_SUFFIX, d)
             if not os.path.exists(dist):
@@ -86,8 +87,8 @@ class Converter:
             # execute conversion
             src_path = os.path.join(self.__tar_dir, d, f)
             dist_path = os.path.join(dist, f)
-            log.i("- convert: %s" % dist_path)
-            self.__call("cat %s | sed -r -f %s > %s" % (src_path, script_path, dist_path))
+            log.d("- convert: %s" % dist_path)
+            self.__call("cat \"%s\" | sed -r -f %s > \"%s\"" % (src_path, script_path, dist_path))
 
     def __un_tar(self):
         """
