@@ -132,7 +132,7 @@ class TestRemoteLogger(TestCase):
         r = remote.RemoteLogger(p)
         r._RemoteLogger__connect = MagicMock()
         r._RemoteLogger__disconnect = MagicMock()
-        r._RemoteLogger__get_file_list = MagicMock(return_value=['test'])
+        r._RemoteLogger__get_file_list = MagicMock(return_value=[None, 'test'])
         r._RemoteLogger__send = MagicMock()
 
         filename = "testdata"

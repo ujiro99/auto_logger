@@ -78,8 +78,8 @@ class RemoteLogger:
         self.filename = file_name
         self.__connect()
 
-        ls = self.__get_file_list(file_name)
-        if len(ls) <= 0:
+        ls, err = self.__get_file_list(file_name)
+        if (not err is None) or (len(ls) <= 0):
             log.w("- not found: %s" % self.filename)
             ret = False
         else:
@@ -95,7 +95,8 @@ class RemoteLogger:
         :rtype list of str
         """
         self.__connect()
-        ls = self.__get_file_list()
+        ls, err = self.__get_file_list()
+        if not err is None: log.w(err)
         self.__disconnect()
         return ls
 
@@ -155,13 +156,13 @@ class RemoteLogger:
         :return: File set.
         :rtype set of str
         """
-        return set(self.__get_file_list())
+        return set(self.__get_file_list()[0])
 
     def __get_file_list(self, pattern=None):
         """
         Get current directory's file list
-        :return: File list.
-        :rtype list of str
+        :return: File list and error message(if error occurred).
+        :rtype (list of str, str)
         """
         if pattern is None: pattern = '*.' + self.params.log_extension
 
@@ -170,11 +171,11 @@ class RemoteLogger:
 
         ls = self.p.match.groups()[0].decode("utf-8")  # type: str
         if ls.find("No such file or directory") > 0:
-            return []
+            return [], "File or directory not found."
 
         ls = list(filter(lambda x: bool(re.match('\S+', x)), ls.splitlines()))
         log.d(ls)
-        return ls
+        return ls, None
 
     def __move_file(self, files=None):
         """

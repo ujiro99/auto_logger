@@ -3,3 +3,4 @@ pexpect
 watchdog
 scripttest
 pandas
+tqdm
