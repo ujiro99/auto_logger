@@ -99,8 +99,8 @@ class AutoLogger:
 
         # get remote log
         remote_logger = remote.RemoteLogger(self.params)
-        ret = remote_logger.get_log()
-        if not ret: return False
+        ls = remote_logger.get_log()
+        if ls is None: return False
 
         # convert log
         p = convert.ConvertParams()

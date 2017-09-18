@@ -30,8 +30,8 @@ class RemoteLogger:
     def get_log(self):
         """
         Get remote log using shell command.
-        :return: Result of getting remote log. True: success | False: fail
-        :rtype: bool
+        :return: Log file name. If failed, returns None.
+        :rtype: list of str
         """
         self.__connect()
 
@@ -59,21 +59,21 @@ class RemoteLogger:
         if timeout <= 0:
             log.w("- time out to logging.")
             self.__disconnect()
-            return False  # Failed to logging
+            return None  # Failed to logging
 
         self.filename = created.pop()
         log.i("- created: " + self.filename)
 
-        ret = self.__move_file()
+        ls = self.__move_file()
         self.__disconnect()
-        return ret
+        return ls
 
     def move_log(self, file_name):
         """
-        Move specified file to remote_dist_dir.
+        Move specified file from remote_log_dir to remote_dist_dir .
         :param str file_name: File name to be moved.
-        :return Result fo move. success: True, failed: False.
-        :rtype bool
+        :return: Log file name. If failed, returns None.
+        :rtype: list of str
         """
         self.filename = file_name
         self.__connect()
@@ -81,16 +81,16 @@ class RemoteLogger:
         ls, err = self.__get_file_list(file_name)
         if (not err is None) or (len(ls) <= 0):
             log.w("- not found: %s" % self.filename)
-            ret = False
+            ls = None
         else:
-            ret = self.__move_file(ls)
+            ls = self.__move_file(ls)
 
         self.__disconnect()
-        return ret
+        return ls
 
     def list_log(self):
         """
-        List remote log files.
+        List remote log files in remote_log_dir.
         :return: List of files
         :rtype list of str
         """
@@ -102,7 +102,7 @@ class RemoteLogger:
 
     def clear_log(self):
         """
-        Remove all remote log files.
+        Remove all remote log files in remote_log_dir.
         """
         self.__connect()
         self.__send("rm *.%s" % self.params.log_extension)
@@ -180,8 +180,8 @@ class RemoteLogger:
     def __move_file(self, files=None):
         """
         Move file to remote_dist_dir.
-        :return Result fo move. success: True, failed: False.
-        :rtype bool
+        :return Moved file list.
+        :rtype list of str
         """
         if files is None: files = [self.filename]
 
@@ -194,11 +194,14 @@ class RemoteLogger:
 
         if not is_created:
             log.w("- move failed: %s" % self.filename)
-            return False
+            return None
 
+        ret = []
         for f in files:
-            log_path = os.path.join(self.params.local_src_dir, f)
-            shutil.move(log_path, self.params.local_dist_dir)
-            log.i("- moved: %s/%s" % (self.params.local_dist_dir, f))
+            sp = os.path.join(self.params.local_src_dir, f)
+            dp = os.path.join(self.params.local_dist_dir, f)
+            shutil.move(sp, self.params.local_dist_dir)
+            ret.append(dp)
+            log.i("- moved: %s" % dp)
 
-        return True
+        return ret

@@ -30,9 +30,7 @@ class TestRemoteLogger(TestCase):
         l = remote.RemoteLogger(p)
         ret = l.get_log()
 
-        self.assertTrue(ret)
-        is_exists = os.path.exists(os.path.join(p.local_dist_dir, l.filename))
-        self.assertTrue(is_exists)
+        self.assertTrue(os.path.exists(ret[0]))
         shutil.rmtree(p.local_dist_dir)
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
@@ -55,7 +53,7 @@ class TestRemoteLogger(TestCase):
         array[0].decode = MagicMock(return_value=sentinel)
 
         ret = remote_logger.get_log()
-        self.assertFalse(ret)
+        self.assertEqual(ret, None)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):
@@ -76,10 +74,10 @@ class TestRemoteLogger(TestCase):
 
         # exec
         ret = remote.RemoteLogger(p).move_log(filename)
-        self.assertTrue(ret)
 
-        is_exists = os.path.exists(os.path.join(p.local_dist_dir, filename))
-        self.assertTrue(is_exists)
+        for f in ret:
+            self.assertTrue(os.path.exists(f))
+
         shutil.rmtree(p.local_dist_dir)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
@@ -103,9 +101,9 @@ class TestRemoteLogger(TestCase):
 
         # exec
         ret = remote.RemoteLogger(p).move_log(filename + '*')
-        self.assertTrue(ret)
-        self.assertTrue(os.path.exists(os.path.join(p.local_dist_dir, filename + '1')))
-        self.assertTrue(os.path.exists(os.path.join(p.local_dist_dir, filename + '2')))
+        self.assertTrue(len(ret) == 2)
+        self.assertTrue(ret[0])
+        self.assertTrue(ret[1])
         shutil.rmtree(p.local_dist_dir)
 
     def test_move_log__not_found(self):
@@ -122,7 +120,7 @@ class TestRemoteLogger(TestCase):
         r = remote.RemoteLogger(p)
         ret = r.move_log(filename)
 
-        self.assertFalse(ret)
+        self.assertEqual(ret, None)
 
     @patch.object(watch, 'file', MagicMock(return_value=False))
     def test_move_log__move_failed(self):
@@ -138,7 +136,7 @@ class TestRemoteLogger(TestCase):
         filename = "testdata"
         ret = r.move_log(filename)
 
-        self.assertFalse(ret)
+        self.assertEqual(ret, None)
 
     def test_list_log(self):
         files = ["1.tar.gz", "2.tar.gz"]

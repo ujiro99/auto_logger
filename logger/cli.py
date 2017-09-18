@@ -59,8 +59,10 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
     try:
         ret = logger.start()
     except IOError as e:
+        ret = False
         click.echo(e.args)
     except Exception as e:
+        ret = False
         click.echo(e.args)
 
     # finished
@@ -73,8 +75,9 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 @cmd.command()
 @click.pass_context
 @click.argument('filename', default=None, required=False)
+@click.option('-c', '--convert/--no-convert', default=False, help='取得したファイルを変換します。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def get(ctx: click.core.Context, filename: str, debug: bool):
+def get(ctx: click.core.Context, filename: str, convert: bool, debug: bool):
     """
     引数に指定したファイルを取得します。省略した場合は新たに取得します。
     """
@@ -86,19 +89,30 @@ def get(ctx: click.core.Context, filename: str, debug: bool):
     p.local_dist_dir = os.getcwd()
 
     # execute command
-    ret = False
+    fl = None
+    ret = True
     try:
         if filename is None:
-            ret = remote.RemoteLogger(p).get_log()
+            fl = remote.RemoteLogger(p).get_log()
         else:
-            ret = remote.RemoteLogger(p).move_log(filename)
+            fl = remote.RemoteLogger(p).move_log(filename)
+
+        if convert:
+            cp = conv.ConvertParams()
+            cp.script_path = p.convert_rule
+            for f in fl:
+                cp.log_path = f
+                ret &= conv.Converter(cp).exec()
+
     except IOError as e:
+        ret = False
         click.echo(e.args)
     except Exception as e:
+        ret = False
         click.echo(e.args)
 
     # finished
-    if ret:
+    if not fl is None and ret:
         click.echo("正常に終了しました。")
     else:
         click.echo("失敗しました。")
