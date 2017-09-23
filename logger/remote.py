@@ -171,7 +171,7 @@ class RemoteLogger:
 
         ls = self.p.match.groups()[0].decode("utf-8")  # type: str
         if ls.find("No such file or directory") > 0:
-            return [], "File or directory not found."
+            return [], "File not found."
 
         ls = list(filter(lambda x: bool(re.match('\S+', x)), ls.splitlines()))
         log.d(ls)
