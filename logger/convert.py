@@ -114,7 +114,7 @@ class Converter:
         :return: Iterator[str]
         """
         for root, dirs, files in os.walk(self.__tar_dir):
-            d = root.lstrip(self.__tar_dir).lstrip('/')
+            d = root[len(self.__tar_dir) + 1:]
             for file in files:
                 yield (d, file)
 

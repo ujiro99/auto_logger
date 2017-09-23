@@ -226,13 +226,13 @@ class TestCli(TestCase):
             'remote_log_dir':  '/root',
             'remote_dist_dir': '/mnt/log',
             'local_src_dir':   '../',
-            'convert_rule':    'tests/rule.csv',
+            'convert_rule':    '../tests/rule.csv',
         }
         file_path = os.path.join(os.getcwd(), '.tmp', LogParam.FILE_NAME)
         with open(file_path, 'w') as file:
             ini.write(file)
 
-        result = env.run('../logger/cli.py get --debug', cwd='.tmp', expect_stderr=True)
+        result = env.run('../logger/cli.py get -c --debug', cwd='.tmp', expect_stderr=True)
         print(result)
         self.assertRegex(result.stdout, '正常に終了しました。')
         self.assertTrue(len(result.files_created) > 0)
