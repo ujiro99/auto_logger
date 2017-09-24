@@ -13,24 +13,24 @@ Options:
   --help                  Show this message and exit.
 
 Commands:
-  clear    Delete all log files saved in Remote.
-  convert  Extracts the specified tar file and converts it according to conversion rules.
-  get      Get the file specified as an argument. If omitted, it will be newly acquired.
   init     Set parameters to be used for log acquisition. The setting value is saved in ~ / plog.ini.
-  ls       Get a list of log files saved in Remote.
   start    Start collecting logs including console operation log. To exit the log acquisition, please input `exit` twice.
+  get      Get the file specified as an argument. If omitted, it will be newly acquired.
+  ls       Get a list of log files saved in Remote.
+  convert  Extracts the specified tar file and converts it according to conversion rules.
+  clear    Delete all log files saved in Remote.
 ```
 
 ## Installation
 
-### how to install non-internet machine.
+### How to install non-internet machine.
 
-Download all dependent packages locally.
+1. Download all dependent packages locally.
 ```sh
 $ pip wheel -r requirements.txt -w lib
 ```
 
-Move all files to non-internet machine, then execute commands below.
+2. Move all files to non-internet machine, then execute commands below.
 ```sh
 $ sudo pip install -r requirements.txt -f lib --no-index
 $ sudo pip install -e . -f lib --no-index
