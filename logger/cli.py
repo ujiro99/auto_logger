@@ -76,8 +76,9 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 @click.pass_context
 @click.argument('filename', default=None, required=False)
 @click.option('-c', '--convert/--no-convert', default=False, help='取得したファイルを変換します。')
+@click.option('-u', '--to-usb', default=False, help='USBへ出力します。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def get(ctx: click.core.Context, filename: str, convert: bool, debug: bool):
+def get(ctx: click.core.Context, filename: str, convert: bool, to_usb: bool, debug: bool):
     """
     引数に指定したファイルを取得します。省略した場合は新たに取得します。
     """
@@ -88,14 +89,17 @@ def get(ctx: click.core.Context, filename: str, convert: bool, debug: bool):
     p = __get_params(ctx)
     p.local_dist_dir = os.getcwd()
 
+    if to_usb:
+        p.remote_dist_dir = "/mnt/USB0"
+
     # execute command
     fl = None
     ret = True
     try:
         if filename is None:
-            fl = remote.RemoteLogger(p).get_log()
+            fl = remote.RemoteLogger(p).get_log(to_usb)
         else:
-            fl = remote.RemoteLogger(p).move_log(filename)
+            fl = remote.RemoteLogger(p).move_log(filename, to_usb)
 
         if convert:
             cp = conv.ConvertParams()

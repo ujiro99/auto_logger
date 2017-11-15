@@ -27,7 +27,7 @@ class RemoteLogger:
         self.filename = None  # type: str
         self.p = None  # type: pexpect.spawn
 
-    def get_log(self):
+    def get_log(self, to_usb):
         """
         Get remote log using shell command.
         :return: Log file name. If failed, returns None.
@@ -64,11 +64,11 @@ class RemoteLogger:
         self.filename = created.pop()
         log.i("- created: " + self.filename)
 
-        ls = self.__move_file()
+        ls = self.__move_file(to_usb=to_usb)
         self.__disconnect()
         return ls
 
-    def move_log(self, file_name):
+    def move_log(self, file_name, to_usb):
         """
         Move specified file from remote_log_dir to remote_dist_dir .
         :param str file_name: File name to be moved.
@@ -83,7 +83,7 @@ class RemoteLogger:
             log.w("- not found: %s" % self.filename)
             ls = None
         else:
-            ls = self.__move_file(ls)
+            ls = self.__move_file(ls, to_usb)
 
         self.__disconnect()
         return ls
@@ -177,9 +177,24 @@ class RemoteLogger:
         log.d(ls)
         return ls, None
 
-    def __move_file(self, files=None):
+    def __move_file(self, files=None, to_usb=False):
         """
-        Move file to remote_dist_dir.
+        Move file.
+        :param list of str files: target files
+        :param bool to_usb: if true, move files to usb.
+        :return Moved file list.
+        :rtype list of str
+        """
+        if to_usb:
+            ls = self.__move_file_to_usb(ls)
+        else:
+            ls = self.__move_file_to_shared_dir(ls)
+        return ls
+
+    def __move_file_to_shared_dir(self, files=None):
+        """
+        Move file to remote_dist_dir -> local_dist_dir.
+        :param list of str files: target files
         :return Moved file list.
         :rtype list of str
         """
@@ -203,5 +218,24 @@ class RemoteLogger:
             shutil.move(sp, self.params.local_dist_dir)
             ret.append(dp)
             log.i("- moved: %s" % dp)
+
+        return ret
+
+    def __move_file_to_usb(self, files=None):
+        """
+        Move file to usb.
+        :param list of str files: target files
+        :return Moved file list.
+        :rtype list of str
+        """
+        if files is None: files = [self.filename]
+
+        usb_dir = "/mnt/USB0"
+
+        # mv log file to usb
+        log.i("- move file to %s" % usb_dir)
+        for f in files:
+            self.__send("mv %s %s" % (f, usb_dir))
+            self.__send("sync")
 
         return ret
