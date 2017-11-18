@@ -18,6 +18,23 @@ class ConvertParams:
         self.file = None  # type: str
 
 
+class Column:
+    """
+    Csv column definitions.
+    """
+    ADDR = 'addr'  # type: str
+    CMD = 'cmd'  # type: str
+    FLAGS = 'flags'  # type: str
+
+
+class Flag:
+    """
+    Csv flag definitions.
+    """
+    #: Uses regular expression to ADDR.
+    REGEX = "regex"  # type: str
+
+
 class Converter:
     DIR_SUFFIX = ".conv"  # type: str
     SED_ADD_FMT = "/%s/ s/$/%s/\n"  # type: str
@@ -127,12 +144,16 @@ class Converter:
         :return: File path name.
         :rtype str
         """
-        df = pd.read_csv(self.__p.script_path, names=('addr', 'cmd'))  # type: pandas.core.frame.DataFrame
-        addr = df.addr.apply(lambda x: self.__escape_sed_addr(x))
+        df = pd.read_csv(self.__p.script_path,
+                         names=[Column.ADDR, Column.CMD, Column.FLAGS])  # type: pandas.core.frame.DataFrame
+        if df.flags.count() > 0:
+            df.addr = df.apply(self.__convert_addr, axis=1)
+        else:
+            df.addr = df.addr.apply(self.__escape_sed_addr)
 
         with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as tf:
             for i, r in df.iterrows():
-                tf.write(Converter.SED_ADD_FMT % (addr[i], r[1]))
+                tf.write(Converter.SED_ADD_FMT % (r.addr, r.cmd))
         return tf.name
 
         # remain script file for debug.
@@ -141,6 +162,18 @@ class Converter:
         #     for i, r in df.iterrows():
         #         fd.write(Converter.SED_ADD_FMT % (addr[i], r[1]))
         # return f
+
+    def __convert_addr(self, row):
+        """
+        Convert addr according to flags.
+        :param pandas.Series row:
+        :return: Converted addr.
+        :rtype str
+        """
+        if type(row[Column.FLAGS]) == str and Flag.REGEX in row[Column.FLAGS]:
+            return row.addr
+        else:
+            return self.__escape_sed_addr(row.addr)
 
     def __escape_sed_addr(self, address):
         """

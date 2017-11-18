@@ -45,3 +45,17 @@ class TestConverter(TestCase):
         self.assertEqual(num_line, num_char)
 
         os.remove(os.path.join(os.getcwd(), "./tests/test.conv.log"))
+
+    def test_exec__file_regex(self):
+        p = convert.ConvertParams()
+        p.script_path = "./tests/regex.csv"
+        p.file = "./tests/regex.log"
+
+        ret = convert.Converter(p).exec()
+        self.assertTrue(ret)
+
+        num_line = sum(1 for line in open(p.file))
+        num_char = sum(line.count("★") for line in open("./tests/regex.conv.log"))
+        self.assertEqual(num_line, num_char)
+
+        os.remove(os.path.join(os.getcwd(), "./tests/regex.conv.log"))
