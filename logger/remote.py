@@ -179,7 +179,7 @@ class RemoteLogger:
     def __move_file(self, files, to_usb=False):
         """
         Move files.
-        :param list of str files: target files
+        :param list of str files: target file names
         :param bool to_usb: if true, move files to usb.
         :return Moved file list.
         :rtype list of str
@@ -192,24 +192,26 @@ class RemoteLogger:
     def __move_file_to_usb(self, files):
         """
         Move files to remote_dist_dir -> usb.
-        :param list of str files: target files
+        :param list of str files: target file names
         :return Moved file list.
         :rtype list of str
         """
         usb_dir = "/mnt/USB0"
 
         # mv log file to usb
+        ls = []
         log.i("- move file to %s" % usb_dir)
         for f in files:
             self.__send("mv %s %s" % (f, usb_dir))
             self.__send("sync")
+            ls.append(os.path.join(usb_dir, f))
 
-        return ret
+        return ls
 
     def __move_file_to_shared_dir(self, files):
         """
         Move files to remote_dist_dir -> local_dist_dir.
-        :param list of str files: target files
+        :param list of str files: target file names
         :return Moved file list.
         :rtype list of str
         """

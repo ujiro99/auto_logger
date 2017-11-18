@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
@@ -31,10 +30,10 @@ class TestRemoteLogger(TestCase):
         ret = l.get_log()
 
         self.assertTrue(os.path.exists(ret[0]))
-        shutil.rmtree(p.local_dist_dir)
+        os.remove(ret[0])
 
     @patch.object(pexpect, 'spawn', MagicMock(return_value=MagicMock))
-    def test_get_log_timeout(self):
+    def test_get_log__timeout(self):
         params = logger.params.LogParam()
         params.log_extension = "tar.gz"
         remote_logger = remote.RemoteLogger(params)
@@ -54,6 +53,24 @@ class TestRemoteLogger(TestCase):
 
         ret = remote_logger.get_log()
         self.assertEqual(ret, None)
+
+    def test_get_log__usb(self):
+        p = logger.params.LogParam()
+        p.host_name = 'root@172.30.10.2'
+        p.shell = 'ssh'
+        p.log_cmd = 'log_to_rom'
+        p.log_extension = 'tar.gz'
+        p.remote_log_dir = '/root'
+
+        dd = os.path.join(os.getcwd(), "tests", "dist", "usb")
+        if not os.path.exists(dd):
+            os.makedirs(dd)
+
+        ret = remote.RemoteLogger(p).get_log(to_usb=True)
+
+        df = os.path.join(dd, os.path.basename(ret[0]))
+        self.assertTrue(os.path.exists(df))
+        os.remove(df)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):
@@ -77,11 +94,10 @@ class TestRemoteLogger(TestCase):
 
         for f in ret:
             self.assertTrue(os.path.exists(f))
-
-        shutil.rmtree(p.local_dist_dir)
+            os.remove(f)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
-    def test_move_log_glob(self):
+    def test_move_log__glob(self):
         os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
@@ -104,7 +120,31 @@ class TestRemoteLogger(TestCase):
         self.assertTrue(len(ret) == 2)
         self.assertTrue(ret[0])
         self.assertTrue(ret[1])
-        shutil.rmtree(p.local_dist_dir)
+        os.remove(ret[0])
+        os.remove(ret[1])
+
+    @patch.object(watch, 'file', MagicMock(return_value=True))
+    def test_move_log__usb(self):
+        os.chdir("tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        os.chdir("..")
+        p.remote_log_dir = "/mnt/log"
+        dd = os.path.join(os.getcwd(), "tests", "dist", "usb")
+
+        # create src file, and dist directory
+        filename = "testfile_test_move_log__usb"
+        f = open(os.path.join(os.getcwd(), filename), "w")
+        f.close()
+        if not os.path.exists(dd):
+            os.makedirs(dd)
+
+        # exec
+        remote.RemoteLogger(p).move_log(filename, to_usb=True)
+
+        df = os.path.join(dd, filename)
+        self.assertTrue(os.path.exists(df))
+        os.remove(df)
 
     def test_move_log__not_found(self):
         os.chdir("tests")
