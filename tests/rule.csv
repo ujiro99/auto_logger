@@ -1,27 +1,34 @@
-back\slash,★
+!exclamation,★
+#sharp,★
+%percent,★
+&ampersand,★
+'quote,★
+_underbar,★
+`backquote,★
+~tilde,★
+\backslash,★
 /slash,★
 *asterisk,★
-dot...,★
+.dot,★
 +plus,★
-question?,★
-bar|,★
+?question,★
+|bar,★
 {braces},★
-braces},★
-{braces,★
+{left_brace,★
+}right_brace,★
 (paren),★
-(paren,★
-paren),★
+(left_paren,★
+)right_paren,★
 [brackets],★
-[brackets,★
-brackets],★
+[left_bracket,★
+]right_bracket,★
 ^caret,★
-dollar$,★
-hyphen-,★
-greater-than>,★
-less-than>,★
-colon:,★
-semicolon;,★
-"comma,",★
-"double ""quote",★
-"space space",★
-
+$dollar,★
+-hyphen,★
+>greaterthan,★
+<lessthan,★
+:colon,★
+;semicolon,★
+",comma",★
+"""double quote",★
+" space",★

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import shutil
 from unittest import TestCase
 
@@ -17,9 +16,10 @@ class TestConverter(TestCase):
 
         ret = convert.Converter(p).exec()
         self.assertTrue(ret)
-        with open("./tests/test.tar.conv/test.log", 'r') as f:
-            for line in f.readlines():
-                self.assertIsNotNone(re.match(".*★$", line))
+
+        num_line = sum(1 for line in open("./tests/test.tar.conv/test.log"))
+        num_char = sum(line.count("★") for line in open("./tests/test.tar.conv/test.log"))
+        self.assertEqual(num_line, num_char)
 
         shutil.rmtree(os.path.join(os.getcwd(), "./tests/test.tar"))
         shutil.rmtree(os.path.join(os.getcwd(), "./tests/test.tar.conv"))
@@ -39,8 +39,9 @@ class TestConverter(TestCase):
 
         ret = convert.Converter(p).exec()
         self.assertTrue(ret)
-        with open("./tests/test.conv.log", 'r') as f:
-            for line in f.readlines():
-                self.assertIsNotNone(re.match(".*★$", line))
-                print(line)
+
+        num_line = sum(1 for line in open(p.file))
+        num_char = sum(line.count("★") for line in open("./tests/test.conv.log"))
+        self.assertEqual(num_line, num_char)
+
         os.remove(os.path.join(os.getcwd(), "./tests/test.conv.log"))
