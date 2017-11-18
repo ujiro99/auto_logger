@@ -16,7 +16,6 @@ class RemoteLogger:
     TIMEOUT_EXPECT = 20
     TIMEOUT_LOGGING = 30
     TIMEOUT_MOVE = 30
-    TMP_FILE = "__tmp__"
 
     def __init__(self, params):
         """
