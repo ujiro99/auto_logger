@@ -20,8 +20,9 @@ class ConvertParams:
 
 
 class Converter:
-    DIR_SUFFIX = ".conv"
-    SED_ADD_FMT = "/%s/ s/$/%s/\n"
+    DIR_SUFFIX = ".conv"  # type: str
+    SED_ADD_FMT = "/%s/ s/$/%s/\n"  # type: str
+    SED_CMD_FMT = "cat \"%s\" | sed -r -f %s > \"%s\""  # type: str
 
     def __init__(self, params: ConvertParams):
         self.__p = params
@@ -65,17 +66,17 @@ class Converter:
     def __exec_convert(self, script_path):
         """
         Execute conversion using `sed` command.
-        :param str script_path: Script file path, which will be used by `sed` command.
+        :param str script_path: Script file path, which is used by `sed` command.
         """
         # execute conversion
         f = os.path.splitext(self.__p.file)
-        dist_path = f[0] + Converter.DIR_SUFFIX + f[1]
-        log.i("- convert: %s" % dist_path)
-        self.__call("cat %s | sed -r -f %s > %s" % (self.__p.file, script_path, dist_path))
+        dp = f[0] + Converter.DIR_SUFFIX + f[1]
+        log.i("- convert: %s" % dp)
+        self.__call(Converter.SED_CMD_FMT % (self.__p.file, script_path, dp))
 
     def __exec_convert_tar(self, script_path):
         """
-        Execute conversion using `sed` command.
+        Execute conversion a tar file.
         :param str script_path: Script file path, which will be used by `sed` command.
         """
         for d, f in tqdm(list(self.__files())):
@@ -85,10 +86,10 @@ class Converter:
                 os.makedirs(dist)
 
             # execute conversion
-            src_path = os.path.join(self.__tar_dir, d, f)
-            dist_path = os.path.join(dist, f)
-            log.d("- convert: %s" % dist_path)
-            self.__call("cat \"%s\" | sed -r -f %s > \"%s\"" % (src_path, script_path, dist_path))
+            sp = os.path.join(self.__tar_dir, d, f)
+            dp = os.path.join(dist, f)
+            log.d("- convert: %s" % dp)
+            self.__call(Converter.SED_CMD_FMT % (sp, script_path, dp))
 
     def __un_tar(self):
         """
