@@ -27,9 +27,10 @@ class RemoteLogger:
         self.filename = None  # type: str
         self.p = None  # type: pexpect.spawn
 
-    def get_log(self, to_usb):
+    def get_log(self, to_usb=False):
         """
         Get remote log using shell command.
+        :param bool to_usb: If true, log file is copied to USB.
         :return: Log file name. If failed, returns None.
         :rtype: list of str
         """
@@ -68,10 +69,11 @@ class RemoteLogger:
         self.__disconnect()
         return ls
 
-    def move_log(self, file_name, to_usb):
+    def move_log(self, file_name, to_usb=False):
         """
         Move specified file from remote_log_dir to remote_dist_dir .
         :param str file_name: File name to be moved.
+        :param bool to_usb: If true, log file is copied to USB.
         :return: Log file name. If failed, returns None.
         :rtype: list of str
         """
@@ -186,10 +188,9 @@ class RemoteLogger:
         :rtype list of str
         """
         if to_usb:
-            ls = self.__move_file_to_usb(ls)
+            return self.__move_file_to_usb(files)
         else:
-            ls = self.__move_file_to_shared_dir(ls)
-        return ls
+            return self.__move_file_to_shared_dir(files)
 
     def __move_file_to_shared_dir(self, files=None):
         """
