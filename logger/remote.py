@@ -24,7 +24,6 @@ class RemoteLogger:
         :param logger.params.LogParam params: execution parameter
         """
         self.params = params  # type: import logger.params
-        self.filename = None  # type: str
         self.p = None  # type: pexpect.spawn
 
     def get_log(self, to_usb=False):
@@ -62,10 +61,10 @@ class RemoteLogger:
             self.__disconnect()
             return None  # Failed to logging
 
-        self.filename = created.pop()
-        log.i("- created: " + self.filename)
+        f = created.pop()
+        log.i("- created: " + f)
 
-        ls = self.__move_file(to_usb=to_usb)
+        ls = self.__move_file([f], to_usb)
         self.__disconnect()
         return ls
 
@@ -77,12 +76,11 @@ class RemoteLogger:
         :return: Log file name. If failed, returns None.
         :rtype: list of str
         """
-        self.filename = file_name
         self.__connect()
 
         ls, err = self.__get_file_list(file_name)
         if (not err is None) or (len(ls) <= 0):
-            log.w("- not found: %s" % self.filename)
+            log.w("- not found: %s" % file_name)
             ls = None
         else:
             ls = self.__move_file(ls, to_usb)
@@ -179,9 +177,9 @@ class RemoteLogger:
         log.d(ls)
         return ls, None
 
-    def __move_file(self, files=None, to_usb=False):
+    def __move_file(self, files, to_usb=False):
         """
-        Move file.
+        Move files.
         :param list of str files: target files
         :param bool to_usb: if true, move files to usb.
         :return Moved file list.
@@ -192,45 +190,13 @@ class RemoteLogger:
         else:
             return self.__move_file_to_shared_dir(files)
 
-    def __move_file_to_shared_dir(self, files=None):
+    def __move_file_to_usb(self, files):
         """
-        Move file to remote_dist_dir -> local_dist_dir.
+        Move files to remote_dist_dir -> usb.
         :param list of str files: target files
         :return Moved file list.
         :rtype list of str
         """
-        if files is None: files = [self.filename]
-
-        # mv log file to local machine
-        log.i("- move file to %s" % self.params.remote_dist_dir)
-        self.__send("mv %s %s" % (self.filename, self.params.remote_dist_dir))
-        is_created = watch.file(self.params.local_src_dir,
-                                self.filename,
-                                RemoteLogger.TIMEOUT_MOVE)
-
-        if not is_created:
-            log.w("- move failed: %s" % self.filename)
-            return None
-
-        ret = []
-        for f in files:
-            sp = os.path.join(self.params.local_src_dir, f)
-            dp = os.path.join(self.params.local_dist_dir, f)
-            shutil.move(sp, self.params.local_dist_dir)
-            ret.append(dp)
-            log.i("- moved: %s" % dp)
-
-        return ret
-
-    def __move_file_to_usb(self, files=None):
-        """
-        Move file to usb.
-        :param list of str files: target files
-        :return Moved file list.
-        :rtype list of str
-        """
-        if files is None: files = [self.filename]
-
         usb_dir = "/mnt/USB0"
 
         # mv log file to usb
@@ -238,5 +204,32 @@ class RemoteLogger:
         for f in files:
             self.__send("mv %s %s" % (f, usb_dir))
             self.__send("sync")
+
+        return ret
+
+    def __move_file_to_shared_dir(self, files):
+        """
+        Move files to remote_dist_dir -> local_dist_dir.
+        :param list of str files: target files
+        :return Moved file list.
+        :rtype list of str
+        """
+        ret = []
+        for f in files:
+            # mv log file - remote to local
+            log.i("- move file to %s" % self.params.remote_dist_dir)
+            self.__send("mv %s %s" % (f, self.params.remote_dist_dir))
+            is_created = watch.file(self.params.local_src_dir, f, RemoteLogger.TIMEOUT_MOVE)
+
+            if not is_created:
+                log.w("- move failed: %s" % f)
+                continue
+
+            # mv log file - local to local
+            sp = os.path.join(self.params.local_src_dir, f)
+            dp = os.path.join(self.params.local_dist_dir, f)
+            shutil.move(sp, self.params.local_dist_dir)
+            ret.append(dp)
+            log.i("- moved: %s" % dp)
 
         return ret
