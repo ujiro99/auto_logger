@@ -8,7 +8,7 @@ services:
       - "2222:22"
     volumes:
       - .:/mnt/log
-      - ./tests/dist/usb:/mnt/USB0
+      - /tmp:/mnt/USB0
     networks:
       logger_net:
         ipv4_address: 172.30.10.2

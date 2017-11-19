@@ -89,8 +89,6 @@ class TestFile(TestCase):
         timeout = 0.1
 
         f = open(os.path.join(os.getcwd(), filename), "w")
-        f.write("0")
-        f.flush()
         f.close()
 
         is_created = watch.file(path, filename, timeout)

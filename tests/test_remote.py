@@ -12,6 +12,8 @@ import logger.params
 from logger import remote, watch
 
 
+MNT_USB = "/tmp"
+
 class TestRemoteLogger(TestCase):
     def test_get_log(self):
         p = logger.params.LogParam()
@@ -62,15 +64,10 @@ class TestRemoteLogger(TestCase):
         p.log_extension = 'tar.gz'
         p.remote_log_dir = '/root'
 
-        dd = os.path.join(os.getcwd(), "tests", "dist", "usb")
-        if not os.path.exists(dd):
-            os.makedirs(dd)
-
         ret = remote.RemoteLogger(p).get_log(to_usb=True)
 
-        df = os.path.join(dd, os.path.basename(ret[0]))
+        df = os.path.join(MNT_USB, os.path.basename(ret[0]))
         self.assertTrue(os.path.exists(df))
-        os.remove(df)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):
@@ -123,28 +120,21 @@ class TestRemoteLogger(TestCase):
         os.remove(ret[0])
         os.remove(ret[1])
 
-    @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log__usb(self):
         os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
-        dd = os.path.join(os.getcwd(), "tests", "dist", "usb")
-
-        # create src file, and dist directory
-        filename = "testfile_test_move_log__usb"
-        f = open(os.path.join(os.getcwd(), filename), "w")
-        f.close()
-        if not os.path.exists(dd):
-            os.makedirs(dd)
 
         # exec
+        filename = "testfile_test_move_log__usb"
+        fd = open(filename, "w")
+        fd.close()
         remote.RemoteLogger(p).move_log(filename, to_usb=True)
 
-        df = os.path.join(dd, filename)
+        df = os.path.join(MNT_USB, filename)
         self.assertTrue(os.path.exists(df))
-        os.remove(df)
 
     def test_move_log__not_found(self):
         os.chdir("tests")
