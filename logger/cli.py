@@ -5,7 +5,7 @@ import os
 
 import click
 
-from logger import auto, params, log, remote, convert as conv
+from logger import auto, params, log, remote, convert as conv, merge
 
 # messages.
 PROMPT_SHELL_CMD = "- remote shell command"
@@ -258,6 +258,35 @@ def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str,
     except IOError as e:
         click.echo(e.args)
     except Exception as e:
+        click.echo(e.args)
+
+    # finished
+    if ret:
+        click.echo("正常に終了しました。")
+    else:
+        click.echo("失敗しました。")
+
+
+@cmd.command()
+@click.argument('directory', required=True)
+@click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
+def merge(directory: str, debug: bool):
+    """
+    引数に指定したディレクトリ内のファイルをマージします。
+    """
+    # for debug
+    if debug:
+        log.set_level(log.Level.DEBUG)
+
+    ret = True
+    try:
+        ret = merge.Merger().exec(directory)
+
+    except IOError as e:
+        ret = False
+        click.echo(e.args)
+    except Exception as e:
+        ret = False
         click.echo(e.args)
 
     # finished
