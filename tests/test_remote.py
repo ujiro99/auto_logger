@@ -15,6 +15,19 @@ from logger import remote, watch
 MNT_USB = "/tmp"
 
 class TestRemoteLogger(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        local_dist_dir = os.path.join(os.getcwd(), "dist")
+        if not os.path.exists(local_dist_dir):
+            os.mkdir(local_dist_dir)
+
+    @classmethod
+    def tearDownClass(cls):
+        local_dist_dir = os.path.join(os.getcwd(), "dist")
+        if os.path.exists(local_dist_dir):
+            os.rmdir(local_dist_dir)
+
     def test_get_log(self):
         p = logger.params.LogParam()
         p.host_name = 'root@172.30.10.2'
@@ -25,11 +38,8 @@ class TestRemoteLogger(TestCase):
         p.remote_dist_dir = '/mnt/log'
         p.local_src_dir = '.'
         p.local_dist_dir = os.path.join(os.getcwd(), "dist")
-        if not os.path.exists(p.local_dist_dir):
-            os.mkdir(p.local_dist_dir)
 
-        l = remote.RemoteLogger(p)
-        ret = l.get_log()
+        ret = remote.RemoteLogger(p).get_log()
 
         self.assertTrue(os.path.exists(ret[0]))
         os.remove(ret[0])
@@ -83,8 +93,6 @@ class TestRemoteLogger(TestCase):
         filename = "testdata"
         f = open(os.path.join(os.getcwd(), filename), "w")
         f.close()
-        if not os.path.exists(p.local_dist_dir):
-            os.mkdir(p.local_dist_dir)
 
         # exec
         ret = remote.RemoteLogger(p).move_log(filename)
@@ -109,8 +117,6 @@ class TestRemoteLogger(TestCase):
         f.close()
         f = open(os.path.join(os.getcwd(), filename + '2'), "w")
         f.close()
-        if not os.path.exists(p.local_dist_dir):
-            os.mkdir(p.local_dist_dir)
 
         # exec
         ret = remote.RemoteLogger(p).move_log(filename + '*')

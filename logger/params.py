@@ -20,6 +20,7 @@ class LogParam:
         self.local_src_dir = None  # type: str
         self.local_dist_dir = None  # type: str
         self.convert_rule = None  # type: str
+        self.merge_dir = None  # type: str
 
     def read_ini(self):
         """
@@ -47,6 +48,7 @@ class LogParam:
         self.remote_dist_dir = f['remote_dist_dir']
         self.local_src_dir = f['local_src_dir']
         self.convert_rule = f['convert_rule']
+        self.merge_dir = f['merge_dir']
 
         return True
 
@@ -68,6 +70,7 @@ class LogParam:
             'remote_dist_dir': self.remote_dist_dir,
             'local_src_dir':   self.local_src_dir,
             'convert_rule':    self.convert_rule,
+            'merge_dir':       self.merge_dir
         }
 
         # write to ini file

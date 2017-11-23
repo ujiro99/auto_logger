@@ -63,6 +63,7 @@ class TestLogParam(TestCase):
         p.local_src_dir = "local_src_dir"
         p.log_extension = "tar"
         p.convert_rule = "tests/rule.csv"
+        p.merge_dir = "tests/logs"
         path = p.write_ini()
         self.assertEqual(path, os.path.join(os.environ['HOME'], LogParam.FILE_NAME))
 
@@ -76,5 +77,6 @@ class TestLogParam(TestCase):
         self.assertEqual(p.local_src_dir, p2.local_src_dir)
         self.assertEqual(p.log_extension, p2.log_extension)
         self.assertEqual(p.convert_rule, p2.convert_rule)
+        self.assertEqual(p.merge_dir, p2.merge_dir)
 
         os.remove(path)

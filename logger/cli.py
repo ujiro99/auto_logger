@@ -5,17 +5,18 @@ import os
 
 import click
 
-from logger import auto, params, log, remote, convert as conv, merge
+from logger import auto, params, log, remote, convert as conv, merge as mrg
 
 # messages.
 PROMPT_SHELL_CMD = "- remote shell command"
 PROMPT_HOST_NAME = "- remote host name"
 PROMPT_LOG_CMD = "- log command"
 PROMPT_LOG_EXTENSION = "- log extension"
-PROMPT_REMOTE_LOG_DIR = "- remote log dir"
-PROMPT_REMOTE_DIST_DIR = "- remote dist dir"
-PROMPT_LOCAL_SRC_DIR = "- local src dir"
+PROMPT_REMOTE_LOG_DIR = "- remote log directory path"
+PROMPT_REMOTE_DIST_DIR = "- remote dist directory path"
+PROMPT_LOCAL_SRC_DIR = "- local src directory path"
 PROMPT_CONVERT_RULE = "- convert rule file"
+PROMPT_MERGE_DIR = "- marge target directory name"
 
 
 @click.group(invoke_without_command=True)
@@ -75,10 +76,11 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 @cmd.command()
 @click.pass_context
 @click.argument('filename', default=None, required=False)
+@click.option('-u', '--to-usb/--no-to-usb', default=False, help='USBへ出力します。')
 @click.option('-c', '--convert/--no-convert', default=False, help='取得したファイルを変換します。')
-@click.option('-u', '--to-usb', default=False, help='USBへ出力します。')
+@click.option('-m', '--merge/--no-merge', default=False, help='変換後にマージします。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def get(ctx: click.core.Context, filename: str, convert: bool, to_usb: bool, debug: bool):
+def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, merge: bool, debug: bool):
     """
     引数に指定したファイルを取得します。省略した場合は新たに取得します。
     """
@@ -93,20 +95,23 @@ def get(ctx: click.core.Context, filename: str, convert: bool, to_usb: bool, deb
         p.remote_dist_dir = "/mnt/USB0"
 
     # execute command
-    fl = None
+    files = None
     ret = True
     try:
         if filename is None:
-            fl = remote.RemoteLogger(p).get_log(to_usb)
+            files = remote.RemoteLogger(p).get_log(to_usb)
         else:
-            fl = remote.RemoteLogger(p).move_log(filename, to_usb)
+            files = remote.RemoteLogger(p).move_log(filename, to_usb)
 
-        if convert:
+        if convert and files is not None:
             cp = conv.ConvertParams()
             cp.script_path = p.convert_rule
-            for f in fl:
+            for f in files:
                 cp.log_path = f
-                ret &= conv.Converter(cp).exec()
+                ret, out_dir = conv.Converter(cp).exec()
+                ret &= ret
+                if merge and not (out_dir is None):
+                    ret &= mrg.Merge().exec(os.path.join(out_dir, p.merge_dir))
 
     except IOError as e:
         ret = False
@@ -116,7 +121,7 @@ def get(ctx: click.core.Context, filename: str, convert: bool, to_usb: bool, deb
         click.echo(e.args)
 
     # finished
-    if not fl is None and ret:
+    if not files is None and ret:
         click.echo("正常に終了しました。")
     else:
         click.echo("失敗しました。")
@@ -131,8 +136,9 @@ def get(ctx: click.core.Context, filename: str, convert: bool, to_usb: bool, deb
 @click.option('--remote-dist-dir', prompt=PROMPT_REMOTE_DIST_DIR, help='remote接続先でログを一時保存するディレクトリ絶対パス')
 @click.option('--local-src-dir', prompt=PROMPT_LOCAL_SRC_DIR, help='remoteからlocalへログを一時保存するディレクトリ絶対パス')
 @click.option('--convert-rule', prompt=PROMPT_CONVERT_RULE, help='ログの変換ルールファイルのパス')
+@click.option('--merge-dir', prompt=PROMPT_MERGE_DIR, help='マージ対象のディレクトリ名')
 def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remote_log_dir: str, remote_dist_dir: str,
-         local_src_dir: str, convert_rule: str):
+         local_src_dir: str, convert_rule: str, merge_dir: str):
     """
     ログ取得に使用するパラメータを設定します。
     設定値は ~/plog.ini に保存されます。
@@ -155,6 +161,8 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
         local_src_dir = click.prompt(PROMPT_LOCAL_SRC_DIR, type=str)
     if convert_rule is None:
         convert_rule = click.prompt(PROMPT_CONVERT_RULE, type=str)
+    if merge_dir is None:
+        merge_dir = click.prompt(PROMPT_MERGE_DIR, type=str)
 
     # Set input values to param.
     p = params.LogParam()
@@ -166,6 +174,7 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
     p.local_src_dir = local_src_dir
     p.log_extension = log_extension
     p.convert_rule = convert_rule
+    p.merge_dir = merge_dir
 
     # Write to ~/prog.ini
     path = p.write_ini()
@@ -229,8 +238,9 @@ def clear(ctx: click.core.Context, debug: bool):
 @click.argument('tar-file', type=click.Path(exists=True), required=False)
 @click.option('-s', '--script-path', type=click.Path(exists=True), help='変換ルールを記載したパス。デフォルト値は設定ファイルの convert_rule')
 @click.option('-f', '--file', type=click.Path(exists=True), help='変換対象のログファイル')
+@click.option('-m', '--merge/--no-merge', default=False, help='変換後にマージします。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str, debug: bool):
+def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str, merge: bool, debug: bool):
     """
     指定されたtarファイルを展開し、変換ルールに従って変換します。
     """
@@ -252,8 +262,11 @@ def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str,
     p.log_path = tar_file
     p.file = file
 
+    ret = None
     try:
-        ret = conv.Converter(p).exec()
+        ret, out_dir = conv.Converter(p).exec()
+        if merge and not (out_dir is None):
+            ret = mrg.Merge().exec(os.path.join(out_dir, conf.merge_dir))
 
     except IOError as e:
         click.echo(e.args)
@@ -272,15 +285,18 @@ def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str,
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
 def merge(directory: str, debug: bool):
     """
-    引数に指定したディレクトリ内のファイルをマージします。
+    引数に指定したディレクトリ内のファイルをマージし、日付でソートします。
+
+    \b
+    マージしたファイルは、[ディレクトリ名 + .merged.log]というファイル名で出力されます。
+    utf-8でデコード出来ない行は上手くマージ出来ません。
     """
     # for debug
     if debug:
         log.set_level(log.Level.DEBUG)
 
-    ret = True
     try:
-        ret = merge.Merger().exec(directory)
+        ret = mrg.Merge().exec(directory)
 
     except IOError as e:
         ret = False

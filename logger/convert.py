@@ -49,19 +49,23 @@ class Converter:
     def exec(self):
         """
         Execute conversion.
+        :return (Result, Output directory if exists.)
+        :rtype (bool, str)
         """
         if not self.__is_files_exists():
-            return False
+            return False, None
 
         sc = self.__csv_to_sed_script()
+
+        out_dir = None
         if self.__p.file is None:
             self.__un_tar()
-            self.__exec_convert_tar(sc)
+            out_dir = self.__exec_convert_tar(sc)
         else:
             self.__exec_convert(sc)
         os.unlink(sc)  # remote temp file
 
-        return True
+        return True, out_dir
 
     def __is_files_exists(self):
         """
@@ -96,10 +100,13 @@ class Converter:
         """
         Execute conversion a tar file.
         :param str script_path: Script file path, which will be used by `sed` command.
+        :return Output directory
+        :rtype str
         """
+        out_dir = self.__tar_dir + Converter.DIR_SUFFIX
         for d, f in tqdm(list(self.__files())):
             # create output directory.
-            dist = os.path.join(self.__tar_dir + Converter.DIR_SUFFIX, d)
+            dist = os.path.join(out_dir, d)
             if not os.path.exists(dist):
                 os.makedirs(dist)
 
@@ -108,6 +115,8 @@ class Converter:
             dp = os.path.join(dist, f)
             log.d("- convert: %s" % dp)
             self.__call(Converter.SED_CMD_FMT % (script_path, sp, dp))
+
+        return out_dir
 
     def __un_tar(self):
         """

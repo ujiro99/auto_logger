@@ -14,8 +14,8 @@ class TestConverter(TestCase):
         p.script_path = "./tests/rule.csv"
         p.log_path = "./tests/test.tar.gz"
 
-        ret = convert.Converter(p).exec()
-        self.assertTrue(ret)
+        ret, _ = convert.Converter(p).exec()
+        self.assertTrue(ret, True)
 
         num_line = sum(1 for line in open("./tests/test.tar.conv/test.log"))
         num_char = sum(line.count("★") for line in open("./tests/test.tar.conv/test.log"))
@@ -29,7 +29,7 @@ class TestConverter(TestCase):
         p.script_path = "./rule.csv"
         p.log_path = "./tests/test.tar.gz"
 
-        ret = convert.Converter(p).exec()
+        ret, _ = convert.Converter(p).exec()
         self.assertFalse(ret)
 
     def test_exec__file(self):
@@ -37,7 +37,7 @@ class TestConverter(TestCase):
         p.script_path = "./tests/rule.csv"
         p.file = "./tests/test.log"
 
-        ret = convert.Converter(p).exec()
+        ret, _ = convert.Converter(p).exec()
         self.assertTrue(ret)
 
         num_line = sum(1 for line in open(p.file))
@@ -51,7 +51,7 @@ class TestConverter(TestCase):
         p.script_path = "./tests/regex.csv"
         p.file = "./tests/regex.log"
 
-        ret = convert.Converter(p).exec()
+        ret, _ = convert.Converter(p).exec()
         self.assertTrue(ret)
 
         num_line = sum(1 for line in open(p.file))
