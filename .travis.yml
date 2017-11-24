@@ -22,7 +22,7 @@ before_install:
 
 install:
   - pip install -r requirements.txt --cache-dir $HOME/.pip-cache
-  - pip install coveralls
+  - pip install coveralls --cache-dir $HOME/.pip-cache
 
 script:
   - coverage run --source=logger setup.py test
