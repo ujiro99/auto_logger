@@ -251,9 +251,9 @@ def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str,
         s = script_path
     else:
         conf = __get_params(ctx)
-        if not (conf.convert_rule is None) and not os.path.exists(conf.convert_rule):
+        if (conf.convert_rule is not None) and (not os.path.exists(conf.convert_rule)):
             click.echo("convert_rule \"%s\" が存在しません。" % conf.convert_rule)
-            ctx.exit(-1)
+            ctx.exit(2)
         else:
             s = conf.convert_rule
 

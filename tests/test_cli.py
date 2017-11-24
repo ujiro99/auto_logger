@@ -199,16 +199,16 @@ class TestCli(TestCase):
         result = CliRunner().invoke(convert, ["--debug", "-f", "./tests/test.log", "-s", "./tests/rule.csv"])
         self.assertEqual(result.exit_code, 0)
 
-    @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__file_not_exists(self):
-        runner = CliRunner()
-        result = runner.invoke(convert, ["--debug", "-s", "./tests/rule.csv", "./test.tar.gz"])
+        result = CliRunner().invoke(convert, ["--debug", "-s", "./tests/rule.csv", "./test.tar.gz"])
         self.assertEqual(result.exit_code, 2)
 
-    @patch.object(conv.Converter, 'exec', MagicMock(return_value=False))
     def test_convert__rule_not_exists(self):
-        runner = CliRunner()
-        result = runner.invoke(convert, ["--debug", "-s", "./rule.csv", "./tests/test.tar.gz"])
+        result = CliRunner().invoke(convert, ["--debug", "-s", "./rule.csv", "./tests/test.tar.gz"])
+        self.assertEqual(result.exit_code, 2)
+
+    def test_convert__rule_not_exists_conf(self):
+        result = CliRunner().invoke(convert, ["--debug", "./tests/test.tar.gz"])
         self.assertEqual(result.exit_code, 2)
 
     @patch.object(mrg.Merge, 'exec', MagicMock(return_value=True))
