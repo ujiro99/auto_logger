@@ -14,7 +14,7 @@ class TestMerge(TestCase):
         os.remove(path + merge.Merge.FILE_SUFFIX)
 
     def test_exec__dir_not_exists(self):
-        path = "tests/not_exixts_dir"
+        path = "tests/not_exists_dir"
         log.set_level(log.Level.DEBUG)
         ret = merge.Merge().exec(path)
         self.assertFalse(ret)

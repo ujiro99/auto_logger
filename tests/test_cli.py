@@ -11,8 +11,8 @@ import click
 from click.testing import CliRunner
 from scripttest import TestFileEnvironment
 
-from logger import auto, remote, cli, params, convert as conv
-from logger.cli import cmd, start, get, main, init, ls, clear, convert
+from logger import auto, remote, cli, params, convert as conv, merge as mrg
+from logger.cli import cmd, start, get, main, init, ls, clear, convert, merge
 from logger.params import LogParam
 
 
@@ -143,7 +143,7 @@ class TestCli(TestCase):
 
     @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=["file1", "file2"]))
     @patch.object(conv.Converter, 'exec', MagicMock(return_value=True))
-    def test_get__convert(self):
+    def test_get__convert_long(self):
         runner = CliRunner()
         result = runner.invoke(get, ['--convert', '--debug'])
         self.assertEqual(result.exit_code, 0)
@@ -210,6 +210,18 @@ class TestCli(TestCase):
         runner = CliRunner()
         result = runner.invoke(convert, ["--debug", "-s", "./rule.csv", "./tests/test.tar.gz"])
         self.assertEqual(result.exit_code, 2)
+
+    @patch.object(mrg.Merge, 'exec', MagicMock(return_value=True))
+    def test_merge(self):
+        result = CliRunner().invoke(merge, ["--debug", "./tests/logs"])
+        self.assertEqual(result.exit_code, 0)
+
+    def test_merge__empty_dir(self):
+        dir_name = "test_merge__empty_dir"
+        os.mkdir(dir_name)
+        result = CliRunner().invoke(merge, ["--debug", dir_name])
+        self.assertEqual(result.exit_code, 0)
+        os.rmdir(dir_name)
 
     @patch.object(cli, 'cmd', MagicMock(return_value=True))
     def test_main(self):

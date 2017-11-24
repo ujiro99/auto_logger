@@ -281,7 +281,7 @@ def convert(ctx: click.core.Context, tar_file: str, script_path: str, file: str,
 
 
 @cmd.command()
-@click.argument('directory', required=True)
+@click.argument('directory', required=True, type=click.Path(exists=True))
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
 def merge(directory: str, debug: bool):
     """
