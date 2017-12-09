@@ -33,6 +33,7 @@ class Merge:
         :return: Merge result.
         :rtype bool
         """
+        dir_path = dir_path.rstrip('/')
         log.i("- start merge: [%s]" % dir_path)
 
         lines = [self.Parsed(dt.min, b'')]
