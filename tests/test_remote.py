@@ -16,17 +16,17 @@ MNT_USB = "/tmp"
 
 class TestRemoteLogger(TestCase):
 
+    local_dist_dir = os.path.join(os.getcwd(), "dist")
+
     @classmethod
     def setUpClass(cls):
-        local_dist_dir = os.path.join(os.getcwd(), "dist")
-        if not os.path.exists(local_dist_dir):
-            os.mkdir(local_dist_dir)
+        if not os.path.exists(cls.local_dist_dir):
+            os.mkdir(cls.local_dist_dir)
 
     @classmethod
     def tearDownClass(cls):
-        local_dist_dir = os.path.join(os.getcwd(), "dist")
-        if os.path.exists(local_dist_dir):
-            os.rmdir(local_dist_dir)
+        if os.path.exists(cls.local_dist_dir):
+            os.rmdir(cls.local_dist_dir)
 
     def test_get_log(self):
         p = logger.params.LogParam()
@@ -37,7 +37,7 @@ class TestRemoteLogger(TestCase):
         p.remote_log_dir = '/root'
         p.remote_dist_dir = '/mnt/log'
         p.local_src_dir = '.'
-        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+        p.local_dist_dir = TestRemoteLogger.local_dist_dir
 
         ret = remote.RemoteLogger(p).get_log()
 
@@ -101,7 +101,7 @@ class TestRemoteLogger(TestCase):
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
         p.local_src_dir = os.getcwd()
-        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+        p.local_dist_dir = TestRemoteLogger.local_dist_dir
 
         # create src file, and dist directory
         filename = "testdata"
@@ -123,7 +123,7 @@ class TestRemoteLogger(TestCase):
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
         p.local_src_dir = os.getcwd()
-        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+        p.local_dist_dir = TestRemoteLogger.local_dist_dir
 
         # create src file, and dist directory
         filename = "testdata"
@@ -163,7 +163,7 @@ class TestRemoteLogger(TestCase):
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
         p.local_src_dir = os.getcwd()
-        p.local_dist_dir = os.path.join(os.getcwd(), "dist")
+        p.local_dist_dir = TestRemoteLogger.local_dist_dir
         remote.RemoteLogger.TIMEOUT_MOVE = 1
 
         filename = "testdata"
