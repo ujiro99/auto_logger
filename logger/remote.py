@@ -139,15 +139,20 @@ class RemoteLogger:
         """
         Send command to shell.
         :param str cmd: Command string to be send.
+        :return: Output of cmd.
+        :rtype str
         """
         if cmd is None:
             log.w("Error: cmd is None")
-            return
+            return None
 
-        log.d("  > " + cmd)
+        log.d("  > $ %s" % cmd)
         self.p.sendline(cmd)
-        self.p.expect(RemoteLogger.PROMPT)
-        log.d(self.p.before)
+        self.p.expect("\n(.*)%s" % RemoteLogger.PROMPT)
+        ret = self.p.match.groups()[0].decode("utf-8")  # type: str
+        ret = ret.strip("\r\n")
+        log.d("  > %s" % ret)
+        return ret
 
     def __get_file_set(self):
         """
@@ -181,7 +186,7 @@ class RemoteLogger:
         Move files.
         :param list of str files: target file names
         :param bool to_usb: if true, move files to usb.
-        :return Moved file list.
+        :return Moved file list. If failed, returns None.
         :rtype list of str
         """
         if to_usb:
@@ -193,18 +198,23 @@ class RemoteLogger:
         """
         Move files to remote_dist_dir -> usb.
         :param list of str files: target file names
-        :return Moved file list.
+        :return Moved file list. If failed, returns None.
         :rtype list of str
         """
-        usb_dir = "/mnt/USB0"
+
+        # checks does the usb_dir exist.
+        dir_exists = self.__send("test -d %s && echo $?" % self.params.usb_dir) is "0"
+        if not dir_exists:
+            log.e("%s not exists" % self.params.usb_dir)
+            return None
 
         # mv log file to usb
         ls = []
-        log.i("- move file to %s" % usb_dir)
+        log.i("- move file to %s" % self.params.usb_dir)
         for f in files:
-            self.__send("mv %s %s" % (f, usb_dir))
+            self.__send("mv %s %s" % (f, self.params.usb_dir))
             self.__send("sync")
-            ls.append(os.path.join(usb_dir, f))
+            ls.append(os.path.join(self.params.usb_dir, f))
 
         return ls
 

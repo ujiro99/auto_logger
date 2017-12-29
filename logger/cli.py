@@ -17,6 +17,7 @@ PROMPT_REMOTE_DIST_DIR = "- remote dist directory path"
 PROMPT_LOCAL_SRC_DIR = "- local src directory path"
 PROMPT_CONVERT_RULE = "- convert rule file"
 PROMPT_MERGE_DIR = "- marge target directory name"
+PROMPT_USB_DIR = "- usb output directory name"
 
 
 @click.group(invoke_without_command=True)
@@ -137,8 +138,9 @@ def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, mer
 @click.option('--local-src-dir', prompt=PROMPT_LOCAL_SRC_DIR, help='remoteからlocalへログを一時保存するディレクトリ絶対パス')
 @click.option('--convert-rule', prompt=PROMPT_CONVERT_RULE, help='ログの変換ルールファイルのパス')
 @click.option('--merge-dir', prompt=PROMPT_MERGE_DIR, help='マージ対象のディレクトリ名')
+@click.option('--usb-dir', prompt=PROMPT_USB_DIR, help='USB出力時の出力先ディレクトリ名')
 def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remote_log_dir: str, remote_dist_dir: str,
-         local_src_dir: str, convert_rule: str, merge_dir: str):
+         local_src_dir: str, convert_rule: str, merge_dir: str, usb_dir: str):
     """
     ログ取得に使用するパラメータを設定します。
     設定値は ~/plog.ini に保存されます。
@@ -163,6 +165,8 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
         convert_rule = click.prompt(PROMPT_CONVERT_RULE, type=str)
     if merge_dir is None:
         merge_dir = click.prompt(PROMPT_MERGE_DIR, type=str)
+    if usb_dir is None:
+        usb_dir = click.prompt(PROMPT_USB_DIR, type=str)
 
     # Set input values to param.
     p = params.LogParam()
@@ -175,6 +179,7 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
     p.log_extension = log_extension
     p.convert_rule = convert_rule
     p.merge_dir = merge_dir
+    p.usb_dir = usb_dir
 
     # Write to ~/prog.ini
     path = p.write_ini()

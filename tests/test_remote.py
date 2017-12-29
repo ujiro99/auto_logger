@@ -73,11 +73,25 @@ class TestRemoteLogger(TestCase):
         p.log_cmd = 'log_to_rom'
         p.log_extension = 'tar.gz'
         p.remote_log_dir = '/root'
+        p.usb_dir = '/mnt/USB0'
 
         ret = remote.RemoteLogger(p).get_log(to_usb=True)
 
         df = os.path.join(MNT_USB, os.path.basename(ret[0]))
         self.assertTrue(os.path.exists(df))
+
+    def test_get_log__usb_not_exists(self):
+        p = logger.params.LogParam()
+        p.host_name = 'root@172.30.10.2'
+        p.shell = 'ssh'
+        p.log_cmd = 'log_to_rom'
+        p.log_extension = 'tar.gz'
+        p.remote_log_dir = '/root'
+        p.usb_dir = '/mnt/USB1'
+
+        ret = remote.RemoteLogger(p).get_log(to_usb=True)
+
+        self.assertIsNone(ret)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
     def test_move_log(self):

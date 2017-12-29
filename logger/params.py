@@ -21,6 +21,7 @@ class LogParam:
         self.local_dist_dir = None  # type: str
         self.convert_rule = None  # type: str
         self.merge_dir = None  # type: str
+        self.usb_dir = None  # type: str
 
     def read_ini(self):
         """
@@ -49,6 +50,7 @@ class LogParam:
         self.local_src_dir = f['local_src_dir']
         self.convert_rule = f['convert_rule']
         self.merge_dir = f['merge_dir']
+        self.usb_dir = f['usb_dir']
 
         return True
 
@@ -70,7 +72,8 @@ class LogParam:
             'remote_dist_dir': self.remote_dist_dir,
             'local_src_dir':   self.local_src_dir,
             'convert_rule':    self.convert_rule,
-            'merge_dir':       self.merge_dir
+            'merge_dir':       self.merge_dir,
+            'usb_dir':         self.usb_dir
         }
 
         # write to ini file
