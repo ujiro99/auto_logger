@@ -11,6 +11,7 @@ from logger import auto, params, log, remote, convert as conv, merge as mrg
 PROMPT_SHELL_CMD = "- remote shell command"
 PROMPT_HOST_NAME = "- remote host name"
 PROMPT_LOG_CMD = "- log command"
+PROMPT_LOG_CLEAR_CMD = "- log clear command"
 PROMPT_LOG_EXTENSION = "- log extension"
 PROMPT_REMOTE_LOG_DIR = "- remote log directory path"
 PROMPT_REMOTE_DIST_DIR = "- remote dist directory path"
@@ -132,6 +133,7 @@ def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, mer
 @click.option('--shell-cmd', prompt=PROMPT_SHELL_CMD, help='remote接続に使用するコマンド。ssh, telnet 等。')
 @click.option('--host-name', prompt=PROMPT_HOST_NAME, help='接続先のアドレス')
 @click.option('--log-cmd', prompt=PROMPT_LOG_CMD, help='remote接続先でのログ取得コマンド')
+@click.option('--log-clear-cmd', prompt=PROMPT_LOG_CLEAR_CMD, help='remote接続先でのログバッファ削除コマンド')
 @click.option('--log-extension', prompt=PROMPT_LOG_EXTENSION, help='ログファイルの拡張子')
 @click.option('--remote-log-dir', prompt=PROMPT_REMOTE_LOG_DIR, help='remote接続先でログが保存されるディレクトリ絶対パス')
 @click.option('--remote-dist-dir', prompt=PROMPT_REMOTE_DIST_DIR, help='remote接続先でログを一時保存するディレクトリ絶対パス')
@@ -139,8 +141,8 @@ def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, mer
 @click.option('--convert-rule', prompt=PROMPT_CONVERT_RULE, help='ログの変換ルールファイルのパス')
 @click.option('--merge-dir', prompt=PROMPT_MERGE_DIR, help='マージ対象のディレクトリ名')
 @click.option('--usb-dir', prompt=PROMPT_USB_DIR, help='USB出力時の出力先ディレクトリ名')
-def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remote_log_dir: str, remote_dist_dir: str,
-         local_src_dir: str, convert_rule: str, merge_dir: str, usb_dir: str):
+def init(shell_cmd: str, host_name: str, log_cmd: str, log_clear_cmd: str, log_extension: str, remote_log_dir: str,
+         remote_dist_dir: str, local_src_dir: str, convert_rule: str, merge_dir: str, usb_dir: str):
     """
     ログ取得に使用するパラメータを設定します。
     設定値は ~/plog.ini に保存されます。
@@ -153,6 +155,8 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
         host_name = click.prompt(PROMPT_HOST_NAME, type=str)
     if log_cmd is None:
         log_cmd = click.prompt(PROMPT_LOG_CMD, type=str)
+    if log_clear_cmd is None:
+        log_clear_cmd = click.prompt(PROMPT_LOG_CLEAR_CMD, type=str)
     if log_extension is None:
         log_extension = click.prompt(PROMPT_LOG_EXTENSION, type=str)
     if remote_log_dir is None:
@@ -173,6 +177,7 @@ def init(shell_cmd: str, host_name: str, log_cmd: str, log_extension: str, remot
     p.host_name = host_name
     p.shell = shell_cmd
     p.log_cmd = log_cmd
+    p.log_clear_cmd = log_clear_cmd
     p.remote_log_dir = remote_log_dir
     p.remote_dist_dir = remote_dist_dir
     p.local_src_dir = local_src_dir
@@ -212,8 +217,9 @@ def ls(ctx: click.core.Context, debug: bool):
 
 @cmd.command()
 @click.pass_context
+@click.option('-b', '--buffer/--no-buffer', default=False, help='バッファも消します。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def clear(ctx: click.core.Context, debug: bool):
+def clear(ctx: click.core.Context, buffer: str, debug: bool):
     """
     Remoteに保存されたログファイルをすべて削除します。
 
@@ -228,7 +234,7 @@ def clear(ctx: click.core.Context, debug: bool):
     p = __get_params(ctx)
 
     try:
-        remote.RemoteLogger(p).clear_log()
+        remote.RemoteLogger(p).clear_log(buffer)
 
     except IOError as e:
         click.echo(e.args)

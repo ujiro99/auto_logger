@@ -99,13 +99,16 @@ class RemoteLogger:
         self.__disconnect()
         return ls
 
-    def clear_log(self):
+    def clear_log(self, buffer=False):
         """
+        :param bool buffer: Also remove buffer.
         Remove all remote log files in remote_log_dir.
         """
         self.__connect()
         self.__send("rm *.%s" % self.params.log_extension)
         time.sleep(0.1)
+        if buffer:
+            self.__send("%s" % self.params.log_clear_cmd)
         self.__disconnect()
 
     def __connect(self):
@@ -147,8 +150,8 @@ class RemoteLogger:
             return None
 
         log.d("  > $ %s" % cmd)
-        self.p.sendline(cmd)
-        self.p.expect("\n(.*)%s" % RemoteLogger.PROMPT)
+        self.p.sendline(cmd + ";echo")
+        self.p.expect("echo\r\n(.*)%s" % RemoteLogger.PROMPT)
         ret = self.p.match.groups()[0].decode("utf-8")  # type: str
         ret = ret.strip("\r\n")
         log.d("  > %s" % ret)

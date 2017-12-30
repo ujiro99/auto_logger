@@ -11,11 +11,10 @@ import logger.auto
 import logger.params
 from logger import remote, watch
 
-
 MNT_USB = "/tmp"
 
-class TestRemoteLogger(TestCase):
 
+class TestRemoteLogger(TestCase):
     local_dist_dir = os.path.join(os.getcwd(), "dist")
 
     @classmethod
@@ -218,6 +217,23 @@ class TestRemoteLogger(TestCase):
         p.remote_log_dir = "/mnt/log"
 
         remote.RemoteLogger(p).clear_log()
+
+        os.chdir("..")
+        for f in files:
+            self.assertFalse(os.path.exists(f))
+
+    def test_clear_log_with_buffer(self):
+        files = ["5.tar.gz", "6.tar.gz"]
+        for f in files:
+            with open(f, "w") as fd:
+                fd.write("")
+
+        os.chdir("./tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        p.remote_log_dir = "/mnt/log"
+
+        remote.RemoteLogger(p).clear_log(buffer=True)
 
         os.chdir("..")
         for f in files:

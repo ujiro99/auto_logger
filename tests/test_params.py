@@ -58,6 +58,7 @@ class TestLogParam(TestCase):
         p.host_name = "host_name"
         p.shell = "shell"
         p.log_cmd = "log_cmd"
+        p.log_clear_cmd = "log_clear_cmd"
         p.remote_log_dir = "remote_log_dir"
         p.remote_dist_dir = "remote_dist_dir"
         p.local_src_dir = "local_src_dir"
@@ -73,6 +74,7 @@ class TestLogParam(TestCase):
         self.assertEqual(p.host_name, p2.host_name)
         self.assertEqual(p.shell, p2.shell)
         self.assertEqual(p.log_cmd, p2.log_cmd)
+        self.assertEqual(p.log_clear_cmd, p2.log_clear_cmd)
         self.assertEqual(p.remote_log_dir, p2.remote_log_dir)
         self.assertEqual(p.remote_dist_dir, p2.remote_dist_dir)
         self.assertEqual(p.local_src_dir, p2.local_src_dir)
