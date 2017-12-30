@@ -213,11 +213,12 @@ class RemoteLogger:
 
         # mv log file to usb
         ls = []
-        log.i("- move file to %s" % self.params.usb_dir)
+        log.i("- move file to %s" % self.params.remote_dist_dir)
         for f in files:
-            self.__send("mv %s %s" % (f, self.params.usb_dir))
+            self.__send("mkdir -p %s" % self.params.remote_dist_dir)
+            self.__send("mv %s %s" % (f, self.params.remote_dist_dir))
             self.__send("sync")
-            ls.append(os.path.join(self.params.usb_dir, f))
+            ls.append(os.path.join(self.params.remote_dist_dir, f))
 
         return ls
 
@@ -242,6 +243,7 @@ class RemoteLogger:
             # mv log file - local to local
             sp = os.path.join(self.params.local_src_dir, f)
             dp = os.path.join(self.params.local_dist_dir, f)
+            os.makedirs(self.params.local_dist_dir, exist_ok=True)
             shutil.move(sp, self.params.local_dist_dir)
             ret.append(dp)
             log.i("- moved: %s" % dp)

@@ -150,6 +150,12 @@ class TestCli(TestCase):
         result = runner.invoke(get, ['--convert', '--debug'])
         self.assertEqual(result.exit_code, 0)
 
+    @patch.object(remote.RemoteLogger, 'get_log', MagicMock(return_value=[]))
+    def test_get__dir(self):
+        runner = CliRunner()
+        result = runner.invoke(get, ['-d', 'out_dir'])
+        self.assertEqual(result.exit_code, 0)
+
     @patch.object(remote.RemoteLogger, 'move_log', MagicMock(return_value=[]))
     def test_get__move(self):
         runner = CliRunner()

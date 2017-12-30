@@ -78,11 +78,12 @@ def start(ctx: click.core.Context, test_number: str, debug: bool) -> object:
 @cmd.command()
 @click.pass_context
 @click.argument('filename', default=None, required=False)
+@click.option('-d', '--dir', default="", help='出力先のディレクトリ名を指定します。')
 @click.option('-u', '--to-usb/--no-to-usb', default=False, help='USBへ出力します。')
 @click.option('-c', '--convert/--no-convert', default=False, help='取得したファイルを変換します。')
 @click.option('-m', '--merge/--no-merge', default=False, help='変換後にマージします。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
-def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, merge: bool, debug: bool):
+def get(ctx: click.core.Context, filename: str, dir: str, to_usb: bool, convert: bool, merge: bool, debug: bool):
     """
     引数に指定したファイルを取得します。省略した場合は新たに取得します。
     """
@@ -91,10 +92,11 @@ def get(ctx: click.core.Context, filename: str, to_usb: bool, convert: bool, mer
         log.set_level(log.Level.DEBUG)
 
     p = __get_params(ctx)
-    p.local_dist_dir = os.getcwd()
 
     if to_usb:
-        p.remote_dist_dir = "/mnt/USB0"
+        p.remote_dist_dir = os.path.join(p.usb_dir, dir)
+    else:
+        p.local_dist_dir = os.path.join(os.getcwd(), dir)
 
     # execute command
     files = None
