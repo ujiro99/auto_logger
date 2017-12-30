@@ -23,6 +23,7 @@ PROMPT_USB_DIR = "- usb output directory name"
 # initialize log module.
 log.init()
 
+
 @click.group(invoke_without_command=True)
 @click.option('-t', '--test-number', type=str, help='試験番号。ログを保存するディレクトリ名に使用されます。')
 @click.option('--debug/--no-debug', default=False, help='デバッグログを出力します。')
@@ -96,6 +97,8 @@ def get(ctx: click.core.Context, filename: str, dir: str, to_usb: bool, convert:
     p = __get_params(ctx)
 
     if to_usb:
+        if convert or merge:
+            log.w("USB出力時は--convert, --mergeオプションは無視されます.")
         p.remote_dist_dir = os.path.join(p.usb_dir, dir)
     else:
         p.local_dist_dir = os.path.join(os.getcwd(), dir)
@@ -109,7 +112,7 @@ def get(ctx: click.core.Context, filename: str, dir: str, to_usb: bool, convert:
         else:
             files = remote.RemoteLogger(p).move_log(filename, to_usb)
 
-        if convert and files is not None:
+        if convert and not to_usb and files is not None:
             cp = conv.ConvertParams()
             cp.script_path = p.convert_rule
             for f in files:
