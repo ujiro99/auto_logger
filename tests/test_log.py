@@ -54,3 +54,10 @@ class TestLog(TestCase):
 
         log.e("message")
         self.assertEqual(out.getvalue(), "message\n")
+
+    def test_color(self):
+        log.d("debug")
+        log.i("info")
+        log.w("warn")
+        log.e("error")
+

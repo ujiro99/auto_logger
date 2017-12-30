@@ -20,6 +20,8 @@ PROMPT_CONVERT_RULE = "- convert rule file"
 PROMPT_MERGE_DIR = "- marge target directory name"
 PROMPT_USB_DIR = "- usb output directory name"
 
+# initialize log module.
+log.init()
 
 @click.group(invoke_without_command=True)
 @click.option('-t', '--test-number', type=str, help='試験番号。ログを保存するディレクトリ名に使用されます。')
