@@ -13,6 +13,7 @@ import logger.params
 from logger import remote, watch
 
 MNT_USB = "/tmp"
+USB_DIR = "/mnt/USB0"
 
 
 class TestRemoteLogger(TestCase):
@@ -44,7 +45,7 @@ class TestRemoteLogger(TestCase):
         self.assertTrue(os.path.exists(ret[0]))
         os.remove(ret[0])
 
-    def test_get_log_dir(self):
+    def test_get_log__dir(self):
         p = logger.params.LogParam()
         p.host_name = 'root@172.30.10.2'
         p.shell = 'ssh'
@@ -89,7 +90,7 @@ class TestRemoteLogger(TestCase):
         p.log_cmd = 'log_to_rom'
         p.log_extension = 'tar.gz'
         p.remote_log_dir = '/root'
-        p.usb_dir = '/mnt/USB0'
+        p.usb_dir = USB_DIR
         p.remote_dist_dir = p.usb_dir
 
         ret = remote.RemoteLogger(p).get_log(to_usb=True)
@@ -104,8 +105,8 @@ class TestRemoteLogger(TestCase):
         p.log_cmd = 'log_to_rom'
         p.log_extension = 'tar.gz'
         p.remote_log_dir = '/root'
-        p.usb_dir = '/mnt/USB0'
-        p.remote_dist_dir = os.path.join('/mnt/USB0', '001')
+        p.usb_dir = USB_DIR
+        p.remote_dist_dir = os.path.join(USB_DIR, '001')
 
         ret = remote.RemoteLogger(p).get_log(to_usb=True)
 
@@ -149,7 +150,7 @@ class TestRemoteLogger(TestCase):
             os.remove(f)
 
     @patch.object(watch, 'file', MagicMock(return_value=True))
-    def test_move_log_dir(self):
+    def test_move_log__dir(self):
         os.chdir("tests")
         p = logger.params.LogParam()
         p.read_ini()
@@ -201,17 +202,35 @@ class TestRemoteLogger(TestCase):
         p.read_ini()
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
-        p.usb_dir = '/mnt/USB1'
+        p.usb_dir = USB_DIR
         p.remote_dist_dir = p.usb_dir
 
         # exec
         filename = "testfile_test_move_log__usb"
         fd = open(filename, "w")
         fd.close()
-        remote.RemoteLogger(p).move_log(filename, to_usb=True)
+        ret = remote.RemoteLogger(p).move_log(filename, to_usb=True)
 
         df = os.path.join(MNT_USB, filename)
+        self.assertIsNotNone(ret)
         self.assertTrue(os.path.exists(df))
+
+    def test_move_log__usb_not_exists(self):
+        os.chdir("tests")
+        p = logger.params.LogParam()
+        p.read_ini()
+        os.chdir("..")
+        p.remote_log_dir = "/mnt/log"
+        p.usb_dir = '/mnt/USB1'
+        p.remote_dist_dir = p.usb_dir
+
+        # exec
+        filename = "test_move_log__usb_not_exists"
+        fd = open(filename, "w")
+        fd.close()
+        ret = remote.RemoteLogger(p).move_log(filename, to_usb=True)
+
+        self.assertIsNone(ret)
 
     def test_move_log__usb_and_dir(self):
         os.chdir("tests")
@@ -219,7 +238,7 @@ class TestRemoteLogger(TestCase):
         p.read_ini()
         os.chdir("..")
         p.remote_log_dir = "/mnt/log"
-        p.usb_dir = '/mnt/USB0'
+        p.usb_dir = USB_DIR
         p.remote_dist_dir = os.path.join(p.usb_dir, "003")
 
         # exec
